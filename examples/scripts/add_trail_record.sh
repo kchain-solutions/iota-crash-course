@@ -25,18 +25,15 @@ if [ -z "$PRODUCT_ID" ]; then
   exit 1
 fi
 
-if [ -z "$CLOCK_ID" ]; then
-  echo "❌ Error: CLOCK_ID is not set"
-  exit 1
-fi
 
 echo "✅ Using AUDIT_TRAIL_PKG: $AUDIT_TRAIL_PKG"
 echo "✅ Using PRODUCT_ID: $PRODUCT_ID"
-echo "✅ Using CLOCK_ID: $CLOCK_ID"
+
 
 # Trail record details
 ENTRY_DATA="Quality check passed - Battery tested at full capacity, all cells balanced, BMS functioning correctly. Ready for shipment."
 GAS_BUDGET=500000000
+CLOCK_ID=0x6
 
 echo ""
 echo "📝 Adding trail record to product"
@@ -63,7 +60,6 @@ ENTRY_ID=$(echo "$RESULT" | grep -o "0x[a-fA-F0-9]\{64\}" | tail -1)
 if [ ! -z "$ENTRY_ID" ]; then
   echo ""
   echo "🎉 Trail record added successfully!"
-  echo "🆔 Entry ID: $ENTRY_ID"
   echo "🎁 NFT reward should be minted to your address"
   echo ""
   echo "💡 The ProductEntry object is now owned by the Product at: $PRODUCT_ID"

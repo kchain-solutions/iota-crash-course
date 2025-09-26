@@ -17,7 +17,9 @@ iota-crash-course/
 ├── 📖 doc/                    # Theoretical concepts and guides
 │   ├── 01-key-concepts.md     # MoveVM fundamentals
 │   ├── 02-owned-vs-shared.md  # Object ownership patterns
-│   └── 03-smart-contract.md   # Smart contract development
+│   ├── 03-smart-contract.md   # Smart contract structure
+│   ├── 04-dummy-audit-trails.md # Example interaction guide
+│   └── 05-iota-explorer.md    # Blockchain exploration guide
 ├── 🔧 examples/               # Practical implementations
 │   ├── scripts/               # Reusable automation scripts
 │   └── dummy-audit-trails/    # Complete smart contract example
@@ -91,7 +93,9 @@ Start by reading the documentation in the `doc/` directory:
 
 - **[Key Concepts](doc/Beginner/01-key-concepts.md)**: Learn about MoveVM fundamentals and object-oriented design
 - **[Owned vs Shared Objects](doc/Beginner/02-owned-vs-shared.md)**: Understand IOTA's unique performance optimizations
-- **[Smart Contracts](doc/Beginner/03-smart-contract.md)**: Explore token creation and contract deployment
+- **[Smart Contract Structure](doc/Beginner/03-smart-contract.md)**: Learn how Move contracts are organized and structured
+- **[Audit Trail Example](doc/Beginner/04-dummy-audit-trails.md)**: Step-by-step guide to interacting with the example
+- **[IOTA Explorer Guide](doc/Beginner/05-iota-explorer.md)**: Master blockchain exploration and debugging
 
 ### 2. Hands-on Examples
 Explore the practical implementation in `examples/dummy-audit-trails/`:

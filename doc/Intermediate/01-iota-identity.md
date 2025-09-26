@@ -1,40 +1,214 @@
-DID Operations on IOTA (Creating and Retrieving Identities)
+# IOTA Identity: Decentralized Identifiers (DIDs) on IOTA
 
-Decentralized Identifiers (DIDs) are a key component of self-sovereign identity, and IOTA provides a robust framework (the IOTA Identity library) for creating and managing DIDs on its ledger. A DID is essentially a globally unique identifier (like did:iota:123...) that maps to a DID Document — a document containing public keys, authentication methods, and other metadata about an identity. In IOTA’s implementation, DIDs are stored on the Tangle as special Identity objects, and the IOTA Identity library provides convenient APIs to perform all operations (Create, Read, Update, Deactivate). These operations under the hood translate to on-chain transactions that modify the Identity objects ￼.
+Decentralized Identifiers (DIDs) are a key component of self-sovereign identity, and IOTA provides a robust framework (the IOTA Identity library) for creating and managing DIDs on its ledger. A DID is essentially a globally unique identifier (like `did:iota:123...`) that maps to a DID Document — a document containing public keys, authentication methods, and other metadata about an identity.
 
-Let’s go through the main DID operations with examples:
-	•	Creating a DID: To create a new DID on IOTA, you need to create an Identity object on the ledger that will hold the DID Document. In practice, this means preparing a DID Document (at least containing a public key for the controller of the DID) and then calling the Identity::new function via a transaction ￼. Using the higher-level Identity WASM SDK (in Node.js or Rust), this is abstracted for you: you simply call an API like createIdentity() with appropriate parameters. For example, the TypeScript WASM example creates an unpublished DID document in memory, then executes identityClient.createIdentity(unpublished).finish().buildAndExecute(...) to publish it ￼. The result of a successful creation is that a new Object (Identity) is stored on-chain, and its Object ID (which is derived from the creation transaction hash) becomes the unique DID tag. The DID string is formed as did:iota:<network>:0x<ObjectID> ￼ ￼. If no network is specified, it defaults to the mainnet network ID. For instance, a DID might look like:
-did:iota:devnet:0xabc123...def
-where devnet indicates the network and the hex after 0x is the object’s ID. Once created and confirmed, the DID Document (with public keys, etc.) is recorded in the new Identity object’s state on the ledger.
-	•	Resolving (Reading) a DID: Reading a DID means fetching the latest DID Document associated with that DID from the ledger (also known as resolving the DID). Given a DID like the above, a client would parse it to get the network (e.g. devnet ID) and the object ID (the part after 0x). Then it queries an IOTA node (typically via an Indexer API) for the object with that ID ￼. If found, the object’s stored data (the DID Document and metadata) is retrieved. The IOTA Identity library provides a straightforward method: resolveDid(did). Using this, developers don’t need to manually parse and query – the library will handle it and return a resolved document. In our example, after calling createIdentity, the code obtains the new DID and then calls identityClient.resolveDid(did) to fetch the document ￼. The result (often in JSON form) includes the doc (which contains fields like id (the DID itself), verificationMethod (public keys), authentication methods, any services, etc.) and meta (which includes timestamps like when it was created/updated, and possibly other state info) ￼. The resolved DID Document confirms that the identity is on the ledger and returns the exact public data one can use to authenticate that DID. For example, the resolved document might show something like: "id": "did:iota:devnet:0xabc123...def", "verificationMethod": [ { "id": "...#key-1", "controller": "...", "type": "JsonWebKey2020", "publicKeyJwk": { ... } } ], "authentication": ["...#key-1"], along with metadata of creation time. This is how, say, a verifier would obtain someone’s public key to check their signature on a credential. Note: All DID resolution in IOTA happens through the ledger’s latest state; you can also use the Explorer by searching for the DID’s object ID to see raw state (useful for debugging).
-	•	Updating a DID Document: DIDs can be updated to add or remove keys, add new service endpoints, rotate authentication keys, etc. In IOTA, a DID update is achieved by a transaction calling Identity::propose_update and then Identity::execute_update (if needed) on the Identity object ￼. The reason it’s split into “propose” and “execute” is to support multi-controller DIDs (where more than one party controls the DID). If an identity has multiple controllers (say a DID controlled by 3 different organizations), IOTA’s identity uses a threshold approval scheme: a proposed update is created on-chain as a Proposal object, and then each controller can approve it (signing on-chain). Once enough approvals meet the defined threshold, the update can be executed to actually modify the DID Document ￼. For a single-controller DID, the process can be simplified (the single owner can effectively approve and execute in one go). From a developer’s perspective using the library, updating might be as simple as calling something like updateIdentity(newDoc) which under the hood handles the propose/approve/execute as needed. The updated DID Document will get a new updated timestamp in its metadata. Importantly, the Object ID of the Identity remains the same (the DID doesn’t change), but the content (the DID Document bytes) are replaced with the new version. Every update is an on-chain transaction that costs gas, so typically one batches changes if possible. An example update might be adding a new verification method: you’d fetch the current document, add the new key in the JSON, and then call the update API to publish this change. Multi-controller DIDs also involve setting a governance mechanism when creating the DID (like how many approvals needed); the IOTA DID method supports this through an integer threshold and weighted voting for controllers.
-	•	Deactivating or Deleting a DID: In some cases an identity might need to be retired. IOTA’s DID method allows for deactivation (temporary or permanent). A soft deactivation can be done by publishing an update that sets a deactivated: true flag in the DID Document’s metadata, or by updating the document to an empty state indicating it’s inactive ￼. This way, if someone resolves the DID, they see a flag that the DID is deactivated (and it should no longer be considered valid). A permanent deletion is also possible: controllers can initiate a deletion proposal similar to an update, which when executed will wipe the DID Document from the Identity object and set a deleted_did flag ￼. Once deleted, that DID is irreversibly gone – since the object ID that was tied to it can’t be reused, the DID will forever resolve to nothing (historical data might still show it was once there, but in live state it’s gone). Deletion is a heavy action and not commonly performed (as it could break references), so it’s typically reserved for exceptional cases or testing. In most scenarios, rotation and deactivation suffice (for example, if a user loses their private key, one might rotate in a new key or deactivate the DID).
+In IOTA's implementation, DIDs are stored on the ledger as special Identity objects, and the IOTA Identity library provides convenient APIs to perform all operations (Create, Read, Update, Deactivate). These operations under the hood translate to on-chain transactions that modify the Identity objects.
 
-In summary, IOTA’s DID operations provide a full CRUD capability on identities, in line with the DID standard. All changes are secured by on-chain transactions and thus inherit the security of the ledger. The IOTA Identity framework (available in Rust, WASM/TypeScript, and Wasm-bindings for other languages) makes it straightforward to use these features with high-level calls. For instance, a developer can create a DID, issue verifiable credentials to that DID, and later verify them, using the provided libraries without needing to manually craft transactions. Underneath, as described, each operation corresponds to a Move smart contract call to the Identity contract (which is part of IOTA’s standard smart contracts). This means the identity operations are native layer-1 actions – offering security and decentralization out-of-the-box.
+## Core DID Operations
 
-Practical Example – Creating and Resolving a DID:
-Using the IOTA Identity WASM library in Node.js/TypeScript, creating a DID might look like this (pseudo-code adapted from the official examples):
+### Creating a DID
 
-const iotaClient = new IotaClient({ network: "testnet" }); // client for node
+To create a new DID on IOTA, you need to create an Identity object on the ledger that will hold the DID Document. In practice, this means preparing a DID Document (at least containing a public key for the controller of the DID) and then calling the `Identity::new` function via a transaction.
+
+Using the higher-level Identity WASM SDK (in Node.js or Rust), this is abstracted for you: you simply call an API like `createIdentity()` with appropriate parameters. The result of a successful creation is that a new Object (Identity) is stored on-chain, and its Object ID becomes the unique DID tag.
+
+**DID Format**: `did:iota:<network>:0x<ObjectID>`
+
+For example: `did:iota:testnet:0xabc123...def` where `testnet` indicates the network and the hex after `0x` is the object's ID.
+
+### Resolving (Reading) a DID
+
+Reading a DID means fetching the latest DID Document associated with that DID from the ledger (also known as resolving the DID). Given a DID, a client would parse it to get the network and the object ID, then query an IOTA node for the object with that ID.
+
+The IOTA Identity library provides a straightforward method: `resolveDid(did)`. The result includes:
+- **doc**: Contains fields like `id` (the DID itself), `verificationMethod` (public keys), authentication methods, services, etc.
+- **meta**: Includes timestamps like when it was created/updated and other state info
+
+### Updating a DID Document
+
+DIDs can be updated to add or remove keys, add new service endpoints, rotate authentication keys, etc. In IOTA, a DID update is achieved by transactions calling `Identity::propose_update` and then `Identity::execute_update` on the Identity object.
+
+The process is split into "propose" and "execute" to support multi-controller DIDs. For a single-controller DID, the process can be simplified where the single owner can effectively approve and execute in one step.
+
+### Deactivating or Deleting a DID
+
+IOTA's DID method allows for deactivation (temporary or permanent):
+- **Soft deactivation**: Publishing an update that sets a `deactivated: true` flag
+- **Permanent deletion**: Wiping the DID Document from the Identity object
+
+Deletion is a heavy action and not commonly performed, as it could break references. In most scenarios, rotation and deactivation suffice.
+
+## Practical Implementation Examples
+
+### TypeScript/WASM Example
+
+Using the IOTA Identity WASM library in Node.js/TypeScript:
+
+```typescript
+const iotaClient = new IotaClient({ network: "testnet" });
 const identityClient = await Identity.getClient(iotaClient); 
 
 // 1. Create a new DID Document (unpublished, in-memory)
 const { doc: newDoc, key: privateKey } = Identity.createNewDidDocument();
 
-// 2. Publish the DID Document on IOTA (this calls Identity::new under the hood)
+// 2. Publish the DID Document on IOTA
 const result = await identityClient.createIdentity(newDoc).execute();
-const did = result.did;  // the DID string, e.g., did:iota:...:0x1234abcd
+const did = result.did;  // e.g., did:iota:testnet:0x1234abcd
 
 console.log("New DID created:", did);
 
 // 3. Resolve the DID to verify it was published
 const resolved = await identityClient.resolveDid(did);
-console.log("Resolved DID Document:", resolved.document, "Metadata:", resolved.metadata);
+console.log("Resolved DID Document:", resolved.document);
+console.log("Metadata:", resolved.metadata);
+```
 
-After running a creation like this, you would see output indicating the DID string (with its unique object ID) and the resolved document containing the public key. On the explorer, you could search for the object ID (the part after 0x) to see the state. The resolved metadata might show a created timestamp, and if you update it later, the updated timestamp would change accordingly. The ability to resolve the DID from any IOTA node confirms that the identity is live and discoverable – any verifier who knows your DID can fetch your public keys from the ledger to, say, verify a signature you made on a document or credential.
+## Code Examples and Resources
 
-⸻
+### WASM/TypeScript Examples
 
-With the above topics covered – MoveVM fundamentals, object ownership models, a token contract example, using the explorer, and DID operations – you should have a solid foundational understanding to begin building and exploring on IOTA’s new smart contract and identity infrastructure. This knowledge will allow you to experiment quickly on-chain: for instance, you can try deploying a simple Move module, observe it in the explorer, and link it with identity by writing transactions that only you (as the DID owner) can sign. The combination of Move smart contracts and decentralized identity opens up powerful use cases (like trustful asset exchanges, credential-based access control in contracts, etc.), and with IOTA’s feeless base layer and parallel execution, these can be done efficiently. In our next call, we will walk through these steps live, but this document can serve as a reference so you can follow along or reproduce the process afterward.
+The IOTA Identity team provides comprehensive examples for WASM bindings covering:
 
-Sources: The information and examples above are drawn from the latest official IOTA documentation and the Move language documentation to ensure accuracy and up-to-date practices. Key references include the IOTA Developer Docs on MoveVM and Object Model ￼ ￼, the IOTA Token example and Move vs EVM comparisons ￼ ￼, the IOTA Explorer description ￼, and the IOTA Identity Documentation and DID method specification ￼ ￼, among others. These resources can be consulted for deeper dives into each topic as needed.
+- **Basic DID Operations**: Creating, resolving, updating DIDs
+- **Verifiable Credentials**: Issuing and verifying credentials
+- **Advanced Features**: Multi-signature DIDs, service endpoints, key rotation
+
+**📚 Explore WASM Examples**: [identity/bindings/wasm/examples](https://github.com/iotaledger/identity/tree/main/bindings/wasm/identity_wasm/examples)
+
+Key examples include:
+- `0_basic/0_create_did.ts` - Basic DID creation
+- `0_basic/1_resolve_did.ts` - DID resolution
+- `0_basic/2_update_did.ts` - DID document updates
+- `1_advanced/` - Advanced identity features
+- `credential/` - Verifiable credential workflows
+
+### Rust Examples
+
+For Rust developers, native examples demonstrate:
+
+- **High-performance DID operations** using the native Rust library
+- **Advanced cryptographic features** and key management
+- **Custom identity workflows** and integrations
+
+**📚 Explore Rust Examples**: [identity/examples](https://github.com/iotaledger/identity/tree/main/examples)
+
+Key examples include:
+- `0_basic/` - Fundamental DID operations
+- `1_advanced/` - Complex identity scenarios  
+- Credential management and verification
+- Custom resolver implementations
+
+## Integration with IOTA MoveVM
+
+DIDs on IOTA integrate seamlessly with Move smart contracts, enabling powerful use cases:
+
+### Identity-Gated Smart Contracts
+
+```move
+public entry fun restricted_function(
+    identity_proof: &IdentityProof,
+    ctx: &mut TxContext
+) {
+    // Verify the caller owns a specific DID
+    assert!(verify_identity(identity_proof, ctx.sender()), E_UNAUTHORIZED);
+    // Execute restricted logic
+}
+```
+
+### Credential-Based Access Control
+
+```move
+public entry fun premium_feature(
+    credential: &VerifiableCredential,
+    ctx: &mut TxContext  
+) {
+    // Verify the user has a valid premium credential
+    assert!(verify_credential(credential, PREMIUM_ISSUER), E_INVALID_CREDENTIAL);
+    // Grant access to premium features
+}
+```
+
+## Development Workflow
+
+### 1. Setup Development Environment
+
+```bash
+# Install IOTA Identity library
+npm install @iota/identity-wasm
+# or for Rust
+cargo add iota-identity
+```
+
+### 2. Basic DID Lifecycle
+
+1. **Create**: Generate DID and publish to IOTA ledger
+2. **Resolve**: Fetch DID document from any IOTA node
+3. **Update**: Modify keys, services, or metadata
+4. **Verify**: Use DID for authentication or credential verification
+
+### 3. Advanced Patterns
+
+- **Multi-controller DIDs**: Shared control between multiple parties
+- **Threshold signatures**: Require multiple approvals for updates
+- **Service endpoints**: Link DIDs to external services
+- **Credential issuance**: Create and manage verifiable credentials
+
+## Explorer Integration
+
+After creating DIDs, use the IOTA Explorer to inspect them:
+
+1. **Search by DID**: Use the DID string to find the Identity object
+2. **Object inspection**: View the raw DID document data
+3. **Transaction history**: Track all DID operations over time
+4. **Verification**: Confirm DIDs are properly anchored on-chain
+
+**Example DID on Explorer**: Search for a DID's object ID (the part after `0x`) to see its current state and history.
+
+## Security Considerations
+
+### Key Management
+- **Private key security**: Protect DID controller keys
+- **Key rotation**: Regularly update cryptographic keys
+- **Backup strategies**: Ensure key recovery procedures
+
+### Operational Security
+- **Multi-signature**: Use multiple controllers for critical DIDs
+- **Threshold schemes**: Require multiple approvals for sensitive operations
+- **Monitoring**: Track DID operations for unauthorized changes
+
+## Use Cases
+
+### Supply Chain Identity
+- **Product authenticity**: Each product gets a unique DID
+- **Manufacturer verification**: Prove product origin with DID signatures
+- **Quality certifications**: Issue credentials for compliance standards
+
+### Academic Credentials
+- **Student identities**: Each student has a self-sovereign DID
+- **Diploma issuance**: Universities issue verifiable degree credentials
+- **Employer verification**: Companies verify credentials without contacting universities
+
+### IoT Device Identity
+- **Device DIDs**: Each IoT device has its own identity
+- **Secure communication**: Devices authenticate using DID signatures
+- **Access control**: Grant permissions based on device credentials
+
+## Next Steps
+
+After understanding DID fundamentals:
+
+1. **Experiment** with the provided code examples
+2. **Create your own DID** using the WASM or Rust libraries
+3. **Integrate DIDs** with Move smart contracts
+4. **Build identity-aware applications** using IOTA's full stack
+5. **Explore advanced features** like verifiable credentials and multi-party governance
+
+The combination of IOTA's high-performance MoveVM and native identity infrastructure creates unique opportunities for building truly decentralized, identity-aware applications with both privacy and verifiability.
+
+## Additional Resources
+
+- **[IOTA Identity Documentation](https://identity.docs.iota.org/)** - Complete technical documentation
+- **[DID Method Specification](https://identity.docs.iota.org/references/specifications/iota-did-method-spec/)** - IOTA's DID standard
+- **[Verifiable Credentials Guide](https://identity.docs.iota.org/concepts/verifiable-credentials/)** - Credential workflows
+- **[WASM Bindings API](https://identity.docs.iota.org/references/wasm-api/)** - TypeScript/JavaScript API reference
+- **[Rust API Documentation](https://docs.rs/identity_iota/)** - Native Rust library documentation

@@ -1,4 +1,4 @@
-# 🚀 IOTA MoveVM Crash Course
+# 🚀 IOTA Blockchain Adoption Crash Course
 
 A hands-on crash course for learning IOTA's Move Virtual Machine (MoveVM) and its unique approach to smart contracts and decentralized identity. This repository provides practical examples and step-by-step guides to help developers quickly understand and experiment with IOTA's blockchain technology.
 
@@ -15,11 +15,14 @@ This crash course is designed for developers who are:
 ```
 iota-crash-course/
 ├── 📖 doc/                    # Theoretical concepts and guides
-│   ├── 01-key-concepts.md     # MoveVM fundamentals
-│   ├── 02-owned-vs-shared.md  # Object ownership patterns
-│   ├── 03-smart-contract.md   # Smart contract structure
-│   ├── 04-dummy-audit-trails.md # Example interaction guide
-│   └── 05-iota-explorer.md    # Blockchain exploration guide
+│   ├── Beginner/              # Foundational learning materials
+│   │   ├── 01-key-concepts.md     # MoveVM fundamentals
+│   │   ├── 02-owned-vs-shared.md  # Object ownership patterns
+│   │   ├── 03-smart-contract.md   # Smart contract structure
+│   │   ├── 04-dummy-audit-trails.md # Example interaction guide
+│   │   └── 05-iota-explorer.md    # Blockchain exploration guide
+│   └── Intermediate/          # Advanced topics
+│       └── 01-iota-identity.md    # Decentralized Identity (DIDs)
 ├── 🔧 examples/               # Practical implementations
 │   ├── scripts/               # Reusable automation scripts
 │   └── dummy-audit-trails/    # Complete smart contract example

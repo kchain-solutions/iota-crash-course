@@ -23,8 +23,7 @@ iota-crash-course/
 ├── 🔧 examples/               # Practical implementations
 │   ├── scripts/               # Reusable automation scripts
 │   └── dummy-audit-trails/    # Complete smart contract example
-├── 🛠️ Makefile                # Automated development commands
-└── 📋 CLAUDE.md               # AI assistant configuration
+└── 🛠️ Makefile                # Automated development commands
 ```
 
 ## 🚀 Quick Start

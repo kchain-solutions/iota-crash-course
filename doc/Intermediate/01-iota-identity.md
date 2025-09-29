@@ -42,26 +42,28 @@ Deletion is a heavy action and not commonly performed, as it could break referen
 
 ### TypeScript/WASM Example
 
-Using the IOTA Identity WASM library in Node.js/TypeScript:
+The IOTA Identity WASM library provides comprehensive APIs for DID operations. Here's the conceptual flow:
 
-```typescript
-const iotaClient = new IotaClient({ network: "testnet" });
-const identityClient = await Identity.getClient(iotaClient); 
+**1. Create and Publish DID**:
+- Initialize IOTA client and network connection
+- Generate DID document with verification methods  
+- Create identity on-chain using `createIdentity()` 
+- Build and execute transaction to publish DID
 
-// 1. Create a new DID Document (unpublished, in-memory)
-const { doc: newDoc, key: privateKey } = Identity.createNewDidDocument();
+**2. Resolve DID**:
+- Query the published DID document from the network
+- Retrieve current state and metadata
+- Verify cryptographic integrity
 
-// 2. Publish the DID Document on IOTA
-const result = await identityClient.createIdentity(newDoc).execute();
-const did = result.did;  // e.g., did:iota:testnet:0x1234abcd
+**3. Update DID Document**:
+- Generate new verification methods or services
+- Create update proposal with controller token
+- Execute update transaction on-chain
 
-console.log("New DID created:", did);
-
-// 3. Resolve the DID to verify it was published
-const resolved = await identityClient.resolveDid(did);
-console.log("Resolved DID Document:", resolved.document);
-console.log("Metadata:", resolved.metadata);
-```
+**📚 Complete Working Examples**:
+- **[Create DID](https://github.com/iotaledger/identity/blob/main/bindings/wasm/identity_wasm/examples/0_basic/0_create_did.ts)** - Full DID creation workflow
+- **[Update DID](https://github.com/iotaledger/identity/blob/main/bindings/wasm/identity_wasm/examples/0_basic/2_update_did.ts)** - DID document updates and verification methods
+- **[Delete DID](https://github.com/iotaledger/identity/blob/main/bindings/wasm/identity_wasm/examples/0_basic/4_delete_did.ts)** - DID deactivation and deletion
 
 ## Code Examples and Resources
 
@@ -102,31 +104,30 @@ Key examples include:
 
 DIDs on IOTA integrate seamlessly with Move smart contracts, enabling powerful use cases:
 
-### Identity-Gated Smart Contracts
+### Identity-Aware Applications
 
-```move
-public entry fun restricted_function(
-    identity_proof: &IdentityProof,
-    ctx: &mut TxContext
-) {
-    // Verify the caller owns a specific DID
-    assert!(verify_identity(identity_proof, ctx.sender()), E_UNAUTHORIZED);
-    // Execute restricted logic
-}
-```
+IOTA Identity integrates with Move smart contracts to enable powerful identity-based functionality:
 
-### Credential-Based Access Control
+**Conceptual Integration Patterns**:
 
-```move
-public entry fun premium_feature(
-    credential: &VerifiableCredential,
-    ctx: &mut TxContext  
-) {
-    // Verify the user has a valid premium credential
-    assert!(verify_credential(credential, PREMIUM_ISSUER), E_INVALID_CREDENTIAL);
-    // Grant access to premium features
-}
-```
+**1. Identity-Gated Contracts**:
+- Smart contracts can verify DID ownership before executing functions
+- Users prove control of their DID to access restricted features
+- Enables self-sovereign access control without centralized authorities
+
+**2. Credential-Based Access**:
+- Verifiable credentials act as on-chain permissions
+- Users present credentials to unlock premium features or roles
+- Issuers can revoke credentials to remove access
+
+**3. Reputation Systems**:
+- DIDs accumulate reputation through on-chain interactions
+- Smart contracts can query reputation scores for decision making
+- Enables trust-based applications without revealing personal data
+
+**📚 Integration Examples**:
+- **[Identity in Move Contracts](https://github.com/iotaledger/identity/tree/main/examples)** - Rust examples showing DID integration patterns
+- **[Credential Verification](https://docs.iota.org/developer/iota-identity/how-tos/verifiable-credentials/create)** - Official verification workflows
 
 ## Development Workflow
 
@@ -176,22 +177,6 @@ After creating DIDs, use the IOTA Explorer to inspect them:
 - **Threshold schemes**: Require multiple approvals for sensitive operations
 - **Monitoring**: Track DID operations for unauthorized changes
 
-## Use Cases
-
-### Supply Chain Identity
-- **Product authenticity**: Each product gets a unique DID
-- **Manufacturer verification**: Prove product origin with DID signatures
-- **Quality certifications**: Issue credentials for compliance standards
-
-### Academic Credentials
-- **Student identities**: Each student has a self-sovereign DID
-- **Diploma issuance**: Universities issue verifiable degree credentials
-- **Employer verification**: Companies verify credentials without contacting universities
-
-### IoT Device Identity
-- **Device DIDs**: Each IoT device has its own identity
-- **Secure communication**: Devices authenticate using DID signatures
-- **Access control**: Grant permissions based on device credentials
 
 ## Next Steps
 
@@ -207,8 +192,8 @@ The combination of IOTA's high-performance MoveVM and native identity infrastruc
 
 ## Additional Resources
 
-- **[IOTA Identity Documentation](https://identity.docs.iota.org/)** - Complete technical documentation
-- **[DID Method Specification](https://identity.docs.iota.org/references/specifications/iota-did-method-spec/)** - IOTA's DID standard
-- **[Verifiable Credentials Guide](https://identity.docs.iota.org/concepts/verifiable-credentials/)** - Credential workflows
-- **[WASM Bindings API](https://identity.docs.iota.org/references/wasm-api/)** - TypeScript/JavaScript API reference
-- **[Rust API Documentation](https://docs.rs/identity_iota/)** - Native Rust library documentation
+### Official IOTA Documentation
+- **[IOTA Identity - IOTA Documentation](https://docs.iota.org/developer/iota-identity/)** - Main IOTA Identity documentation portal
+- **[Create Verifiable Credentials](https://docs.iota.org/developer/iota-identity/how-tos/verifiable-credentials/create)** - Step-by-step credential creation guide
+- **[IOTA DID Method Specification](https://docs.iota.org/developer/iota-identity/references/iota-did-method-spec)** - Official DID method specification
+- **[Verifiable Credentials Concepts](https://docs.iota.org/developer/iota-identity/explanations/verifiable-credentials)** - Understanding VCs in IOTA

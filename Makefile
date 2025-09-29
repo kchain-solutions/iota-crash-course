@@ -120,14 +120,12 @@ create-account:
 # List all accounts and show active account
 list-accounts:
 	@echo "📋 Listing IOTA accounts..."
-	@chmod +x $(SCRIPTS_DIR)/list_accounts.sh
-	@$(SCRIPTS_DIR)/list_accounts.sh
+	iota client addresses
 
 # Request tokens from faucet for current account
 faucet:
 	@echo "💧 Requesting tokens from faucet..."
-	@chmod +x $(SCRIPTS_DIR)/request_faucet.sh
-	@$(SCRIPTS_DIR)/request_faucet.sh
+	iota client faucet
 
 # Check balance of current account
 balance:

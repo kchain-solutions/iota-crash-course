@@ -4,26 +4,10 @@ The IOTA Explorer is your window into the blockchain, providing real-time visibi
 
 ## Explorer URLs
 
-- **Testnet (Rebased)**: [explorer.rebased.iota.org](https://explorer.rebased.iota.org) - For development and testing
-- **Mainnet**: [explorer.iota.org](https://explorer.iota.org) - For production deployments
+- **Mainnet, Testnet, Devnet**: [explorer.iota.org](https://explorer.iota.org) - For production deployments
 
 > **Note**: Use the testnet explorer for following along with this crash course.
 
-## Navigation Overview
-
-The IOTA Explorer provides several key sections:
-
-```
-┌─────────────────────────────────────────┐
-│ Search Bar: [Enter TX hash, Object ID]  │
-├─────────────────────────────────────────┤
-│ 📊 Home      │ Recent transactions      │
-│ 🔗 Transactions │ All network activity  │  
-│ 📦 Objects   │ Browse on-chain objects  │
-│ 🏗️  Packages │ Deployed smart contracts │
-│ 📈 Analytics │ Network metrics & stats  │
-└─────────────────────────────────────────┘
-```
 
 ## Exploring Your Audit Trail Deployment
 
@@ -321,3 +305,10 @@ Click between these objects to understand how IOTA's object model creates relati
 - **Parallel execution**: Multiple owned object transactions can happen simultaneously
 
 The IOTA Explorer is essential for understanding how your smart contracts behave in practice. Use it regularly during development to verify your expectations match reality and to debug any issues that arise.
+
+## Additional Resources
+
+- **[IOTA Explorer (Mainnet)](https://explorer.iota.org)** - Production network explorer
+- **[IOTA Explorer (Testnet)](https://explorer.rebased.iota.org)** - Development network explorer  
+- **[Object Model - IOTA Documentation](https://docs.iota.org/developer/iota-101/objects/object-model)** - Understanding the objects you see in the explorer
+- **[Smart Contracts on IOTA](https://docs.iota.org/tags/move-sc)** - Documentation for the contracts you're exploring

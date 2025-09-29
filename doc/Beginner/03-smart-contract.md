@@ -1,267 +1,373 @@
 # Smart Contract Structure in IOTA Move
 
-This guide explains how smart contracts are structured in IOTA's Move Virtual Machine using our audit trail example as a practical case study.
+This guide explains the fundamental concepts and structure needed to write smart contracts in IOTA's Move Virtual Machine, from project setup to advanced patterns.
 
-## Move Module Structure
+## 🗂️ Project Structure
 
-A Move smart contract is organized into **modules**. Each module is a collection of structs, functions, and constants that define a specific piece of functionality.
+A Move smart contract project follows a standard directory layout:
+
+```
+my-project/
+├── Move.toml              # Package configuration and metadata
+├── sources/               # Source code directory
+│   ├── main.move         # Primary module
+│   ├── utils.move        # Utility functions
+│   └── types.move        # Custom data structures
+├── tests/                # Unit tests (optional)
+└── build/                # Compiled bytecode (generated)
+```
+
+### Move.toml Configuration
+
+The `Move.toml` file is the heart of your project configuration:
+
+```toml
+[package]
+name = "my_contract"           # Package name (use underscores)
+license = "Apache-2.0"         # License identifier
+version = "0.1.0"              # Semantic versioning
+edition = "2024.beta"          # Move language edition
+
+[dependencies]
+# IOTA framework is automatically included
+# Add custom dependencies here if needed
+
+[addresses]
+my_contract = "0x0"            # Resolved during deployment
+
+[dev-addresses]
+# Addresses used during development/testing
+```
+
+**Key Configuration Fields**:
+- **`name`**: Must match your module declarations
+- **`edition`**: Determines Move language features available
+- **`addresses`**: Maps package names to blockchain addresses
+- **`dependencies`**: External packages your contract uses
+
+## 📦 Module System
 
 ### Module Declaration
 
+Every Move file must start with a module declaration:
+
 ```move
-module audit_trails::app {
-    // Module contents
+module my_contract::core {
+    // Module contents go here
 }
 ```
 
-- **`audit_trails`** - Package name (defined in Move.toml)
-- **`app`** - Module name within the package
-- **`::`** - Namespace separator
+**Module Naming Convention**:
+- **Package name**: `my_contract` (matches Move.toml)
+- **Module name**: `core` (describes module purpose)
+- **Separator**: `::` (namespace separator)
 
-## Import Dependencies
-
-```move
-use std::string::String;           // Standard library for strings
-use iota::clock::{Self, Clock};    // IOTA's clock for timestamps
-use iota::event;                   // Event emission functionality
-use audit_trails::nft_reward::send_nft_reward; // Our NFT module
-```
-
-**Key Patterns:**
-- **Standard Library**: `std::*` for basic types and utilities
-- **IOTA Framework**: `iota::*` for blockchain-specific functionality  
-- **Local Modules**: `package_name::module_name` for cross-module communication
-
-## Data Structures (Structs)
-
-### Resource Structs (Objects)
-
-Resource structs represent on-chain objects with unique abilities:
+### Import System
 
 ```move
-public struct Product has key, store {
-    id: UID,                    // Unique identifier
-    name: String,
-    serial_number: String,
-    manufacturer: String,
-    image_url: String,
-    timestamp: u64
+module my_contract::main {
+    // Standard library imports
+    use std::string::{Self, String};
+    use std::vector;
+    
+    // IOTA framework imports
+    use iota::object::{Self, UID, ID};
+    use iota::transfer;
+    use iota::tx_context::{Self, TxContext};
+    use iota::coin::{Self, Coin};
+    use iota::iota::IOTA;
+    
+    // Local module imports
+    use my_contract::utils::validate_input;
+    
+    // External package imports
+    // use external_package::module_name::function_name;
 }
 ```
 
-**Abilities Explained:**
-- **`key`**: Can be stored as a top-level object (has an address)
-- **`store`**: Can be stored inside other structs
-- **`copy`**: Can be copied (not used for resources - would duplicate assets!)
-- **`drop`**: Can be discarded (dangerous for resources!)
+**Import Patterns**:
+- **`Self`**: Import the module itself for qualified calls
+- **Selective imports**: Import specific types/functions
+- **Aliasing**: Use `as` to rename imports if conflicts occur
 
-### Event Structs
+## 🏗️ Data Structures and Abilities
 
-Events are emitted to notify off-chain systems:
+### Resource Structs (On-chain Objects)
 
 ```move
-public struct ProductEntryLogged has drop, store, copy {
-    product_addr: address,
-    entry_addr: Option<address>
+public struct MyAsset has key, store {
+    id: UID,                    // Required for all objects
+    value: u64,
+    owner_info: String,
+    metadata: vector<u8>
+}
+
+public struct Configuration has key {
+    id: UID,
+    admin: address,
+    settings: Table<String, u64>
 }
 ```
 
-**Event Abilities:**
-- **`copy`**: Events need to be copyable
-- **`drop`**: Events can be discarded after emission
-- **`store`**: Can be stored temporarily
+### Abilities System
 
-## Object Creation Patterns
+Move's ability system controls what operations are allowed on types:
 
-### Shared Objects (Collaborative State)
+| Ability | Description | Use Case |
+|---------|-------------|----------|
+| **`key`** | Can be stored as top-level object | On-chain objects with addresses |
+| **`store`** | Can be stored inside other structs | Nested data structures |
+| **`copy`** | Can be copied/duplicated | Simple data types |
+| **`drop`** | Can be discarded/destroyed | Temporary values |
+
+**Common Ability Combinations**:
 
 ```move
-public entry fun new_product(
-    name: String,
-    manufacturer: String,
-    serial_number: String, 
-    image_url: String,
-    clock: &Clock,
+// On-chain asset (cannot be copied or dropped)
+struct Token has key, store {
+    id: UID,
+    value: u64
+}
+
+// Copyable data (numbers, booleans)
+struct Config has copy, drop, store {
+    rate: u64,
+    enabled: bool
+}
+
+// Event (emitted and discarded)
+struct TransferEvent has copy, drop {
+    from: address,
+    to: address,
+    amount: u64
+}
+```
+
+**⚠️ Security Implications**:
+- **Never give `copy` to assets** - would allow duplication
+- **`drop` on assets** - could lead to accidental loss
+- **`key + store`** - Standard for transferable objects
+
+## 🔧 Function Types
+
+### Entry Functions (Transaction Endpoints)
+
+```move
+public entry fun create_asset(
+    value: u64,
+    recipient: address,
     ctx: &mut TxContext
 ) {
-    let p_id = object::new(ctx);        // Create unique ID
-    let p_addr = object::uid_to_address(&p_id); // Get address
+    let asset = MyAsset {
+        id: object::new(ctx),
+        value,
+        owner_info: string::utf8(b"New Asset"),
+        metadata: vector::empty()
+    };
     
-    transfer::share_object(Product {    // Make it shared!
-        id: p_id,
-        name,
-        serial_number,
-        manufacturer,
-        image_url,
-        timestamp: clock::timestamp_ms(clock)
-    });
-    
-    event::emit(ProductEntryLogged {    // Notify observers
-        product_addr: p_addr,
-        entry_addr: option::none()
-    });
+    transfer::transfer(asset, recipient);
 }
 ```
 
-**Shared Object Characteristics:**
-- **Anyone can access** for reading and valid operations
-- **Higher latency** due to consensus requirements
-- **Perfect for collaborative resources** (marketplaces, DAOs, games)
+**Entry Function Rules**:
+- **`public entry`**: Callable from transactions
+- **No return values**: Cannot return data to caller
+- **Transaction boundaries**: Each call is atomic
 
-### Owned Objects (Private State)
+### Public Functions (Module API)
 
 ```move
-public entry fun log_entry_data(
-    product: &Product,              // Reference to shared object
-    entry_data: String,
-    clock: &Clock,
+public fun get_value(asset: &MyAsset): u64 {
+    asset.value
+}
+
+public fun update_metadata(
+    asset: &mut MyAsset,
+    new_data: vector<u8>
+) {
+    asset.metadata = new_data;
+}
+```
+
+**Public Function Features**:
+- **Can return values**: Enable complex interactions
+- **Callable by other modules**: Building blocks for composition
+- **Not directly callable**: Need entry function wrapper
+
+### Package Functions (Internal API)
+
+```move
+public(package) fun mint_token(
+    amount: u64,
+    ctx: &mut TxContext
+): Token {
+    Token {
+        id: object::new(ctx),
+        value: amount
+    }
+}
+```
+
+**Package Function Benefits**:
+- **Controlled access**: Only modules in same package can call
+- **Internal APIs**: Share functionality between related modules
+- **Security boundary**: Prevent external misuse
+
+## 🔐 Object Creation Patterns
+
+### Shared Objects (Global Access)
+
+```move
+public entry fun create_marketplace(ctx: &mut TxContext) {
+    let marketplace = Marketplace {
+        id: object::new(ctx),
+        listings: table::new(ctx),
+        fee_rate: 250  // 2.5%
+    };
+    
+    transfer::share_object(marketplace);
+}
+```
+
+**Shared Object Properties**:
+- **Global accessibility**: Anyone can read/interact
+- **Full consensus required**: Higher latency, more gas
+- **Ideal for**: Marketplaces, DAOs, public registries
+
+### Owned Objects (Private Access)
+
+```move
+public entry fun create_wallet(
+    initial_amount: u64,
+    owner: address,
     ctx: &mut TxContext
 ) {
-    let product_id = object::id<Product>(product);
-    let product_addr = object::id_to_address(&product_id);
+    let wallet = Wallet {
+        id: object::new(ctx),
+        balance: initial_amount,
+        transactions: vector::empty()
+    };
     
-    let e_id = object::new(ctx);
-    let e_addr = object::uid_to_address(&e_id);
+    transfer::transfer(wallet, owner);
+}
+```
+
+**Owned Object Properties**:
+- **Single owner**: Only owner can modify
+- **Partial consensus**: Lower latency, less gas
+- **Ideal for**: Personal assets, private data
+
+## 🛡️ Capability Pattern for Shared Objects
+
+The capability pattern provides secure access control for shared objects:
+
+```move
+// Admin capability - proves authorization
+public struct AdminCap has key, store {
+    id: UID
+}
+
+// Shared configuration object
+public struct GlobalConfig has key {
+    id: UID,
+    settings: Table<String, u64>
+}
+
+// One-time witness for initialization
+public struct MY_CONTRACT has drop {}
+
+// Initialize with capability creation
+fun init(witness: MY_CONTRACT, ctx: &mut TxContext) {
+    // Create admin capability
+    let admin_cap = AdminCap {
+        id: object::new(ctx)
+    };
     
-    transfer::transfer(ProductEntry {   // Transfer to specific owner!
-        id: e_id,
-        issuer_addr: tx_context::sender(ctx),
-        entry_data,
-        timestamp: clock::timestamp_ms(clock)
-    }, product_addr);                   // Product becomes the owner
+    // Create shared configuration
+    let config = GlobalConfig {
+        id: object::new(ctx),
+        settings: table::new(ctx)
+    };
     
-    // Emit event and mint reward...
+    transfer::transfer(admin_cap, tx_context::sender(ctx));
+    transfer::share_object(config);
+}
+
+// Admin-only function
+public entry fun update_config(
+    _: &AdminCap,                    // Proves caller has admin rights
+    config: &mut GlobalConfig,
+    key: String,
+    value: u64
+) {
+    table::add(&mut config.settings, key, value);
 }
 ```
 
-**Owned Object Characteristics:**
-- **Single owner** (in this case, the Product object)
-- **Lower latency** through parallel execution
-- **Ideal for private data** and user-specific assets
+**Capability Pattern Benefits**:
+- **Granular permissions**: Different capabilities for different roles
+- **Transferable authority**: Capabilities can be transferred or shared
+- **Composable security**: Combine multiple capabilities for complex access control
+- **No centralized registry**: Capabilities are self-contained proofs
 
-## Function Types
-
-### Entry Functions (Public API)
+### Advanced Capability Patterns
 
 ```move
-public entry fun new_product(/* parameters */) {
-    // Implementation
+// Time-limited capability
+public struct TemporaryCap has key, store {
+    id: UID,
+    expires_at: u64
+}
+
+// Multi-signature capability
+public struct MultiSigCap has key, store {
+    id: UID,
+    required_sigs: u64,
+    signers: vector<address>
+}
+
+// Usage-limited capability
+public struct LimitedCap has key, store {
+    id: UID,
+    remaining_uses: u64
 }
 ```
 
-**Entry Function Properties:**
-- **`public entry`**: Can be called directly from transactions
-- **No return value**: Entry functions don't return data
-- **Transaction boundaries**: Each call is a separate transaction
+## 🎯 Design Principles
 
-### Public Functions (Inter-module)
+### 1. Resource Safety
+- Use abilities correctly to prevent asset duplication
+- Avoid `drop` on valuable resources
+- Leverage Move's type system for automatic safety
 
-```move
-public fun name(nft: &RewardNFT): &String {
-    &nft.name
-}
-```
+### 2. Performance Optimization
+- Choose owned vs shared objects based on access patterns
+- Minimize shared object contention
+- Use events for off-chain data needs
 
-**Public Function Properties:**
-- **`public`**: Callable by other modules
-- **Can return values**: Used for queries and inter-module communication
-- **Not entry points**: Cannot be called directly from transactions
+### 3. Modularity
+- Separate concerns across modules
+- Use package functions for internal APIs
+- Design for reusability and composition
 
-### Package-only Functions
+### 4. Security First
+- Use capabilities for access control
+- Validate all inputs in entry functions
+- Follow principle of least privilege
 
-```move
-public(package) fun send_nft_reward(/* parameters */) {
-    // Implementation  
-}
-```
+## 📜 Common Patterns Summary
 
-**Package Function Properties:**
-- **`public(package)`**: Only callable within the same package
-- **Module boundaries**: Enables controlled access between related modules
+| Pattern | Use Case | Implementation |
+|---------|----------|---------------|
+| **Asset Management** | Tokens, NFTs | `key + store`, owned objects |
+| **Global Registry** | Marketplaces, DAOs | Shared objects with capabilities |
+| **Access Control** | Admin functions | Capability pattern |
+| **Event Logging** | Off-chain integration | Event emission |
+| **Multi-module** | Complex applications | Package functions |
 
-## Multi-Module Architecture
+## Additional Resources
 
-Our audit trail example uses two modules:
-
-### Main Module (`audit_trails::app`)
-- **Product management**: Creating and managing audit trail products
-- **Entry logging**: Adding audit entries to products  
-- **Event emission**: Notifying external systems
-
-### NFT Reward Module (`audit_trails::nft_reward`)
-- **NFT creation**: Minting reward NFTs
-- **Display setup**: Configuring how NFTs appear in wallets
-- **Access control**: Managing who can mint NFTs
-
-**Integration Pattern:**
-```move
-// In app.move
-use audit_trails::nft_reward::send_nft_reward;
-
-// Later in log_entry_data function
-send_nft_reward(
-    b"Product Entry Badge",
-    b"Thanks for logging a product entry!",
-    b"https://i.imgur.com/Jw7UvnH.png",
-    tx_context::sender(ctx),
-    ctx
-);
-```
-
-## Key Design Patterns
-
-### 1. Object Ownership Strategy
-- **Shared Products**: Enable collaborative audit trails
-- **Owned Entries**: Ensure entries belong to specific products
-- **Performance optimization**: Parallel processing where possible
-
-### 2. Event-Driven Architecture  
-- **Emit events** for all significant state changes
-- **Enable off-chain indexing** and real-time updates
-- **Provide audit trails** for all operations
-
-### 3. Capability-Based Security
-- **One-Time Witness (OTW)**: Ensures only module publisher can initialize
-- **Admin capabilities**: Control sensitive operations
-- **Resource safety**: Move's type system prevents asset duplication
-
-### 4. Modular Design
-- **Separation of concerns**: Core logic vs. reward system
-- **Reusability**: NFT module can be used by other contracts
-- **Maintainability**: Clear boundaries between functionalities
-
-## Deployment Structure
-
-### Move.toml Configuration
-```toml
-[package]
-name = "audit trails"
-license = "Apache-2.0"
-version = "0.1.0"
-edition = "2024.beta"
-
-[dependencies]
-# Dependencies are automatically included
-
-[addresses]
-audit_trails = "0x0"    # Resolved during deployment
-```
-
-### Directory Structure
-```
-dummy-audit-trails/
-    Move.toml           # Package configuration
-    sources/            # Source code directory
-    audit_trails.move    # Main module
-    nft_reward.move      # NFT reward module
-```
-
-## Transaction Flow Example
-
-1. **Deploy Contract**: Publish modules to blockchain
-2. **Initialize**: `init` functions run automatically  
-3. **Create Product**: Call `new_product` creates shared object
-4. **Log Entry**: Call `log_entry_data` creates owned object + mints NFT
-5. **Events Emitted**: Off-chain systems can track all activities
-
-This structure demonstrates IOTA Move's unique approach to blockchain development, combining performance optimizations (owned objects) with collaborative features (shared objects) in a type-safe, resource-oriented programming model.
+- **[Move Concepts - IOTA Documentation](https://docs.iota.org/developer/iota-101/move-overview/)** - Comprehensive Move language guide for IOTA
+- **[Smart Contracts on IOTA](https://docs.iota.org/tags/move-sc)** - Complete Move smart contract documentation
+- **[Object Model - IOTA Documentation](https://docs.iota.org/developer/iota-101/objects/object-model)** - Understanding IOTA's object-centric architecture
+- **[From Solidity/EVM to Move](https://docs.iota.org/developer/evm-to-move/)** - Migration guide from traditional smart contract patterns

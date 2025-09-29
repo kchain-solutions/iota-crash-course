@@ -53,18 +53,3 @@ RESULT=$(iota client call \
 
 echo "📋 Transaction Result:"
 echo "$RESULT"
-
-# Try to extract the product entry object ID from the result
-ENTRY_ID=$(echo "$RESULT" | grep -o "0x[a-fA-F0-9]\{64\}" | tail -1)
-
-if [ ! -z "$ENTRY_ID" ]; then
-  echo ""
-  echo "🎉 Trail record added successfully!"
-  echo "🎁 NFT reward should be minted to your address"
-  echo ""
-  echo "💡 The ProductEntry object is now owned by the Product at: $PRODUCT_ID"
-else
-  echo ""
-  echo "⚠️  Could not extract Entry ID from transaction result"
-  echo "Please check the transaction output above for the created object ID"
-fi

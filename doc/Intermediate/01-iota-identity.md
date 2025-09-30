@@ -14,7 +14,7 @@ Using the higher-level Identity WASM SDK (in Node.js or Rust), this is abstracte
 
 **DID Format**: `did:iota:<network>:0x<ObjectID>`
 
-For example: `did:iota:testnet:0xabc123...def` where `testnet` indicates the network and the hex after `0x` is the object's ID.
+For example: [did:iota:testnet:0x1ea...d1cd](https://explorer.iota.org/object/0x1eaa9f6fb990d900a43f717955cdbcbd68e48fbdfcea65c7d1abfa6e2b92d1cd?network=testnet) where `testnet` indicates the network and the hex after `0x` is the object's ID.
 
 ### Resolving (Reading) a DID
 
@@ -61,9 +61,9 @@ The IOTA Identity WASM library provides comprehensive APIs for DID operations. H
 - Execute update transaction on-chain
 
 **📚 Complete Working Examples**:
-- **[Create DID](https://github.com/iotaledger/identity/blob/main/bindings/wasm/identity_wasm/examples/0_basic/0_create_did.ts)** - Full DID creation workflow
-- **[Update DID](https://github.com/iotaledger/identity/blob/main/bindings/wasm/identity_wasm/examples/0_basic/2_update_did.ts)** - DID document updates and verification methods
-- **[Delete DID](https://github.com/iotaledger/identity/blob/main/bindings/wasm/identity_wasm/examples/0_basic/4_delete_did.ts)** - DID deactivation and deletion
+- **[Create DID](https://github.com/iotaledger/identity/blob/main/bindings/wasm/identity_wasm/examples/src/0_basic/0_create_did.ts)** - Full DID creation workflow
+- **[Update DID](https://github.com/iotaledger/identity/blob/main/bindings/wasm/identity_wasm/examples/src/0_basic/1_update_did.ts)** - DID document updates and verification methods
+- **[Delete DID](https://github.com/iotaledger/identity/blob/main/bindings/wasm/identity_wasm/examples/src/0_basic/4_delete_did.ts)** - DID deactivation and deletion
 
 ## Code Examples and Resources
 
@@ -104,30 +104,6 @@ Key examples include:
 
 DIDs on IOTA integrate seamlessly with Move smart contracts, enabling powerful use cases:
 
-### Identity-Aware Applications
-
-IOTA Identity integrates with Move smart contracts to enable powerful identity-based functionality:
-
-**Conceptual Integration Patterns**:
-
-**1. Identity-Gated Contracts**:
-- Smart contracts can verify DID ownership before executing functions
-- Users prove control of their DID to access restricted features
-- Enables self-sovereign access control without centralized authorities
-
-**2. Credential-Based Access**:
-- Verifiable credentials act as on-chain permissions
-- Users present credentials to unlock premium features or roles
-- Issuers can revoke credentials to remove access
-
-**3. Reputation Systems**:
-- DIDs accumulate reputation through on-chain interactions
-- Smart contracts can query reputation scores for decision making
-- Enables trust-based applications without revealing personal data
-
-**📚 Integration Examples**:
-- **[Identity in Move Contracts](https://github.com/iotaledger/identity/tree/main/examples)** - Rust examples showing DID integration patterns
-- **[Credential Verification](https://docs.iota.org/developer/iota-identity/how-tos/verifiable-credentials/create)** - Official verification workflows
 
 ## Development Workflow
 
@@ -147,13 +123,6 @@ cargo add iota-identity
 3. **Update**: Modify keys, services, or metadata
 4. **Verify**: Use DID for authentication or credential verification
 
-### 3. Advanced Patterns
-
-- **Multi-controller DIDs**: Shared control between multiple parties
-- **Threshold signatures**: Require multiple approvals for updates
-- **Service endpoints**: Link DIDs to external services
-- **Credential issuance**: Create and manage verifiable credentials
-
 ## Explorer Integration
 
 After creating DIDs, use the IOTA Explorer to inspect them:
@@ -164,31 +133,6 @@ After creating DIDs, use the IOTA Explorer to inspect them:
 4. **Verification**: Confirm DIDs are properly anchored on-chain
 
 **Example DID on Explorer**: Search for a DID's object ID (the part after `0x`) to see its current state and history.
-
-## Security Considerations
-
-### Key Management
-- **Private key security**: Protect DID controller keys
-- **Key rotation**: Regularly update cryptographic keys
-- **Backup strategies**: Ensure key recovery procedures
-
-### Operational Security
-- **Multi-signature**: Use multiple controllers for critical DIDs
-- **Threshold schemes**: Require multiple approvals for sensitive operations
-- **Monitoring**: Track DID operations for unauthorized changes
-
-
-## Next Steps
-
-After understanding DID fundamentals:
-
-1. **Experiment** with the provided code examples
-2. **Create your own DID** using the WASM or Rust libraries
-3. **Integrate DIDs** with Move smart contracts
-4. **Build identity-aware applications** using IOTA's full stack
-5. **Explore advanced features** like verifiable credentials and multi-party governance
-
-The combination of IOTA's high-performance MoveVM and native identity infrastructure creates unique opportunities for building truly decentralized, identity-aware applications with both privacy and verifiability.
 
 ## Additional Resources
 

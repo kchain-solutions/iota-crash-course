@@ -4,7 +4,7 @@ The IOTA Explorer is your window into the blockchain, providing real-time visibi
 
 ## Explorer URLs
 
-- **Mainnet, Testnet, Devnet**: [explorer.iota.org](https://explorer.iota.org) - For production deployments
+- **Mainnet, Testnet, Devnet**: [explorer.iota.org](https://explorer.iota.org)
 
 > **Note**: Use the testnet explorer for following along with this crash course.
 

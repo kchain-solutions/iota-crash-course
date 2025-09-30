@@ -98,6 +98,7 @@ Start by reading the documentation in the `doc/` directory:
 - **[Smart Contract Structure](doc/Beginner/03-smart-contract.md)**: Learn how Move contracts are organized and structured
 - **[Audit Trail Example](doc/Beginner/04-dummy-audit-trails.md)**: Step-by-step guide to interacting with the example
 - **[IOTA Explorer Guide](doc/Beginner/05-iota-explorer.md)**: Master blockchain exploration and debugging
+- **[IOTA Identity Guide](doc/Intermediate/01-iota-identity.md)**: Understand how to use IOTA Identity SDK to manage Decentralized Identities
 
 ### 2. Hands-on Examples
 Explore the practical implementation in `examples/dummy-audit-trails/`:
@@ -172,8 +173,7 @@ The audit trail example demonstrates key IOTA concepts:
 
 After deploying and interacting with contracts, use the IOTA Explorer to verify on-chain activity:
 
-- **Mainnet**: [explorer.iota.org](https://explorer.iota.org)
-- **Testnet**: [explorer.rebased.iota.org](https://explorer.rebased.iota.org)
+- [explorer.iota.org](https://explorer.iota.org)
 
 Search for transaction IDs or object IDs to see detailed information about your contracts and transactions.
 

@@ -54,8 +54,19 @@ echo "✅ Address created successfully!"
 echo "🆔 New Address: $NEW_ADDRESS"
 echo "🏷️  Alias: $ALIAS"
 
+
+echo "🔄 Step 2: Switching to new account..."
+
+SWITCH_RESULT=$(iota client switch --address "$ALIAS" 2>&1)
+echo "$SWITCH_RESULT"
+
+if echo "$SWITCH_RESULT" | grep -q "error\|Error"; then
+    echo "❌ Failed to switch to new account"
+    exit 1
+fi
+
 echo ""
-echo "💧 Step 2: Requesting tokens from faucet..."
+echo "💧 Step 3: Requesting tokens from faucet..."
 
 FAUCET_RESULT=$(iota client faucet 2>&1)
 echo "$FAUCET_RESULT"
@@ -67,15 +78,6 @@ else
 fi
 
 echo ""
-echo "🔄 Step 3: Switching to new account..."
-
-SWITCH_RESULT=$(iota client switch --address "$ALIAS" 2>&1)
-echo "$SWITCH_RESULT"
-
-if echo "$SWITCH_RESULT" | grep -q "error\|Error"; then
-    echo "❌ Failed to switch to new account"
-    exit 1
-fi
 
 echo "✅ Successfully switched to account: $ALIAS"
 

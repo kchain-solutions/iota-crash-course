@@ -371,3 +371,5 @@ public struct LimitedCap has key, store {
 - **[Smart Contracts on IOTA](https://docs.iota.org/tags/move-sc)** - Complete Move smart contract documentation
 - **[Object Model - IOTA Documentation](https://docs.iota.org/developer/iota-101/objects/object-model)** - Understanding IOTA's object-centric architecture
 - **[From Solidity/EVM to Move](https://docs.iota.org/developer/evm-to-move/)** - Migration guide from traditional smart contract patterns
+- **[Move Stdlib](https://github.com/iotaledger/iota/tree/develop/external-crates/move/crates/move-stdlib/sources)** - Move Standard Library
+- **[Move IOTA Framework](https://github.com/iotaledger/iota/tree/develop/crates/iota-framework/packages/iota-framework/sources)** - Move IOTA Framework 

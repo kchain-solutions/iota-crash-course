@@ -4,12 +4,13 @@ A cornerstone of Move on IOTA is the distinction between owned objects and share
 
 ## 🚀 Performance Impact Overview
 
-| Aspect | Owned Objects | Shared Objects |
-|--------|--------------|----------------|
-| **Consensus Type** | **Partial Consensus** | **Full Consensus** |
-| **Latency** | **~400ms** | **~2000ms** |
-| **Parallel Execution** | ✅ **Yes** | ❌ **Sequential** |
-| **Gas Costs** | **Lower** | **Higher** |
+| Aspect             | Owned Objects     | Shared Objects |
+|--------------------|-------------------|----------------|
+| Consensus Type     | Partial Consensus | Full Consensus |
+| Latency            | Lower             | Higher         |
+| Throughput         | Higher            | Lower          |
+| Parallel Execution | ✅ Yes             | ❌ Sequential   |
+| Gas Costs          | Lower             | Higher         |
 
 ## 🔒 Owned Objects - Partial Consensus (High Performance)
 
@@ -18,10 +19,10 @@ A cornerstone of Move on IOTA is the distinction between owned objects and share
 ### ⚡ Performance Advantages
 
 **Partial Consensus Process**:
-1. **Local Validation** (~100ms): Only verify the owner's signature and object state
+1. **Local Validation**: Only verify the owner's signature and object state
 2. **No Global Coordination**: No need to order transactions across all validators  
 3. **Parallel Execution**: Multiple owned object transactions can run simultaneously
-4. **Fast Finality**: **~400ms** total latency vs **~2000ms** for shared objects
+4. **Fast Finality**: Lower total latency compared to shared objects
 
 **Why It's Faster**:
 ```
@@ -31,7 +32,7 @@ Charlie transfers his NFT: Object 0x789abc (owned by Charlie)
 
 → All 3 transactions execute in PARALLEL
 → No conflicts possible since different owners
-→ 50,000+ TPS throughput achievable
+→ Higher throughput achievable
 ```
 
 ### 🎯 When to Use Owned Objects
@@ -85,10 +86,10 @@ Charlie transfers his NFT: Object 0x789abc (owned by Charlie)
 
 | Blockchain | Model | All Operations |
 |------------|-------|----------------|
-| **Ethereum** | Account-based | **Full Consensus** (~15 TPS) |
+| **Ethereum** | Account-based | **Full Consensus** (Limited TPS) |
 | **IOTA Move** | Object-based | **Partial** OR **Full Consensus** |
 
-**IOTA's Advantage**: Developers can **choose** the right consensus model per use case, achieving up to **3,300x better performance** for owned object operations while maintaining shared object functionality when needed.
+**IOTA's Advantage**: Developers can **choose** the right consensus model per use case, achieving significantly better performance for owned object operations while maintaining shared object functionality when needed.
 
 This architectural flexibility allows IOTA Move developers to build applications that are both **highly performant** and **fully collaborative** - a combination impossible on traditional shared-state blockchains.
 

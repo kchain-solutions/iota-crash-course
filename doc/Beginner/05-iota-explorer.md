@@ -307,8 +307,5 @@ Click between these objects to understand how IOTA's object model creates relati
 The IOTA Explorer is essential for understanding how your smart contracts behave in practice. Use it regularly during development to verify your expectations match reality and to debug any issues that arise.
 
 ## Additional Resources
-
-- **[IOTA Explorer (Mainnet)](https://explorer.iota.org)** - Production network explorer
-- **[IOTA Explorer (Testnet)](https://explorer.rebased.iota.org)** - Development network explorer  
 - **[Object Model - IOTA Documentation](https://docs.iota.org/developer/iota-101/objects/object-model)** - Understanding the objects you see in the explorer
 - **[Smart Contracts on IOTA](https://docs.iota.org/tags/move-sc)** - Documentation for the contracts you're exploring

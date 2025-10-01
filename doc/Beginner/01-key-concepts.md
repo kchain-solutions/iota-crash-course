@@ -1,6 +1,6 @@
 # MoveVM Basics: Key Concepts
 
-The MoveVM executes smart contracts written in the Move programming language. Move is a secure and flexible language initially developed for Diem (Libra) and influenced by Rust, emphasizing safety of digital assets. **Unlike the Ethereum Virtual Machine (EVM) which uses accounts and balances with global shared state, Move uses a resource-oriented model**. Assets in Move are represented as objects (resources) that have strict ownership rules. Objects cannot be accidentally duplicated or dropped, which helps prevent common vulnerabilities. This design allows formal verification of contracts and avoids issues like re-entrancy or arithmetic overflows by construction.
+The MoveVM executes smart contracts written in the Move programming language. Move is a secure and flexible language initially developed for Diem (Libra) and influenced by Rust, emphasizing safety of digital assets. **Unlike the Ethereum Virtual Machine (EVM) which uses accounts and balances with global shared state, Move uses a resource-oriented model**. **Assets in Move are represented as objects (resources) that have strict ownership rules. Objects cannot be accidentally duplicated or dropped, which helps prevent common vulnerabilities. This design allows formal verification of contracts and avoids issues like re-entrancy or arithmetic overflows by construction.**
 
 IOTA’s implementation of Move (often called IOTA MoveVM) customizes Move for high throughput and fast finality. IOTA uses object-centric global storage: 
 

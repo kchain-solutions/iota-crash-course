@@ -1,5 +1,8 @@
 build/
 target/
 node_modules/
+ext_docs/
+
+.env
 
 CLAUDE.md

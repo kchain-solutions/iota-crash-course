@@ -100,6 +100,18 @@ Key examples include:
 - Credential management and verification
 - Custom resolver implementations
 
+## Advanced Identity Features
+
+### Domain Linkage Verification
+
+For production applications requiring domain verification, IOTA Identity supports bidirectional domain linkage. This feature enables:
+
+- **Cryptographic verification** between DIDs and web domains
+- **Trusted authentication** for web applications
+- **Verifiable business credentials** with domain ownership proof
+
+**📚 Learn More**: **[Domain Linkage Verification](../Advanced/01-domain-linkage-verification.md)** - Complete guide with TypeScript and Rust implementations
+
 ## Integration with IOTA MoveVM
 
 DIDs on IOTA integrate seamlessly with Move smart contracts, enabling powerful use cases:

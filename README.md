@@ -21,8 +21,10 @@ iota-crash-course/
 │   │   ├── 03-smart-contract.md   # Smart contract structure
 │   │   ├── 04-dummy-audit-trails.md # Example interaction guide
 │   │   └── 05-iota-explorer.md    # Blockchain exploration guide
-│   └── Intermediate/          # Advanced topics
-│       └── 01-iota-identity.md    # Decentralized Identity (DIDs)
+│   ├── Intermediate/          # Advanced topics
+│   │   └── 01-iota-identity.md    # Decentralized Identity (DIDs)
+│   └── Advanced/              # Expert-level implementations
+│       └── 01-domain-linkage-verification.md # Domain linkage verification
 ├── 🔧 examples/               # Practical implementations
 │   ├── scripts/               # Reusable automation scripts
 │   └── dummy-audit-trails/    # Complete smart contract example
@@ -99,6 +101,7 @@ Start by reading the documentation in the `doc/` directory:
 - **[Audit Trail Example](doc/Beginner/04-dummy-audit-trails.md)**: Step-by-step guide to interacting with the example
 - **[IOTA Explorer Guide](doc/Beginner/05-iota-explorer.md)**: Master blockchain exploration and debugging
 - **[IOTA Identity Guide](doc/Intermediate/01-iota-identity.md)**: Understand how to use IOTA Identity SDK to manage Decentralized Identities
+- **[Domain Linkage Verification](doc/Advanced/01-domain-linkage-verification.md)**: Advanced identity verification with bidirectional domain-DID linking
 
 ### 2. Hands-on Examples
 Explore the practical implementation in `examples/dummy-audit-trails/`:

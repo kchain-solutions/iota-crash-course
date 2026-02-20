@@ -5,7 +5,7 @@
 
 .PHONY: help install-rust install-iota-cli check-dependencies audit-trail-help audit-trail-build audit-trail-publish 
 .PHONY: audit-trail-create-product audit-trail-add-trail audit-trail-clean audit-trail-setup 
-.PHONY: create-account list-accounts faucet balance switch-account
+.PHONY: create-account list-accounts faucet balance switch-account start-local-network
 
 # Variables
 EXAMPLES_DIR = examples
@@ -20,6 +20,9 @@ help:
 	@echo "  make install-rust               - Install or update Rust and Cargo"
 	@echo "  make install-iota-cli          - Install IOTA CLI (requires Rust)"
 	@echo "  make check-dependencies        - Check if all dependencies are installed"
+	@echo ""
+	@echo "🌐 Local Development:"
+	@echo "  make start-local-network        - Start local IOTA blockchain with faucet"
 	@echo ""
 	@echo "👤 Account Management (Global):"
 	@echo "  make create-account [ALIAS=test] - Create new IOTA account and request faucet"
@@ -108,6 +111,16 @@ check-dependencies:
 	else \
 		echo "⚠️  Some dependencies are missing. Please install them first."; \
 	fi
+
+# === Local Network Commands ===
+
+# Start local IOTA blockchain with faucet
+start-local-network:
+	@echo "🌐 Starting local IOTA blockchain..."
+	@echo "⚠️  This will reset the local blockchain (force-regenesis)"
+	@echo "💧 Faucet will be available on the local network"
+	@echo ""
+	RUST_LOG="off,iota_node=info" iota start --force-regenesis --with-faucet
 
 # === Account Management Commands (Global) ===
 

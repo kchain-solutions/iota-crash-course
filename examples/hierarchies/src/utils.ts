@@ -1,17 +1,23 @@
 // Copyright 2020-2025 IOTA Stiftung
 // SPDX-License-Identifier: Apache-2.0
 
+import 'dotenv/config';
 import { HierarchiesClient, HierarchiesClientReadOnly } from "@iota/hierarchies/node";
 import { Ed25519KeypairSigner } from "@iota/iota-interaction-ts/node/test_utils";
 import { IotaClient } from "@iota/iota-sdk/client";
 import { getFaucetHost, requestIotaFromFaucetV0 } from "@iota/iota-sdk/faucet";
 import { Ed25519Keypair } from "@iota/iota-sdk/keypairs/ed25519";
 
-export const IOTA_HIERARCHIES_PKG_ID = globalThis?.process?.env?.IOTA_HIERARCHIES_PKG_ID || "";
-export const NETWORK_NAME_FAUCET = globalThis?.process?.env?.NETWORK_NAME_FAUCET || "localnet";
-export const NETWORK_URL = globalThis?.process?.env?.NETWORK_URL || "http://127.0.0.1:9000";
+export const IOTA_HIERARCHIES_PKG_ID = process.env.IOTA_HIERARCHIES_PKG_ID || "";
+export const NETWORK_NAME_FAUCET = process.env.NETWORK_NAME_FAUCET || "localnet";
+export const NETWORK_URL = process.env.NETWORK_URL || "http://127.0.0.1:9000";
 
 if (!IOTA_HIERARCHIES_PKG_ID) {
+    console.error("\n❌ IOTA_HIERARCHIES_PKG_ID is not set!");
+    console.error("\n📖 To get the package ID:");
+    console.error("   1. Clone: git clone https://github.com/iotaledger/hierarchies.git");
+    console.error("   2. Deploy: cd hierarchies/hierarchies-move && ./scripts/publish_hierarchies.sh");
+    console.error("   3. Copy the package ID to your .env file\n");
     throw new Error("IOTA_HIERARCHIES_PKG_ID env variable must be set to run the examples");
 }
 export const TEST_GAS_BUDGET = BigInt(50_000_000);
@@ -28,8 +34,10 @@ export async function getFundedClient(): Promise<HierarchiesClient> {
         throw new Error(`IOTA_HIERARCHIES_PKG_ID env variable must be provided to run the examples`);
     }
 
+    console.log(`\n🔧 Connecting to ${NETWORK_URL}...`);
     const iotaClient = new IotaClient({ url: NETWORK_URL });
 
+    console.log(`📦 Loading Hierarchies package: ${IOTA_HIERARCHIES_PKG_ID}`);
     const hierarchiesClientReadOnly = await HierarchiesClientReadOnly.createWithPkgId(
         iotaClient,
         IOTA_HIERARCHIES_PKG_ID,
@@ -42,14 +50,16 @@ export async function getFundedClient(): Promise<HierarchiesClient> {
     let signer = new Ed25519KeypairSigner(keypair);
     const hierarchiesClient = await new HierarchiesClient(hierarchiesClientReadOnly, signer);
 
+    console.log(`💰 Requesting funds from ${NETWORK_NAME_FAUCET} faucet for ${hierarchiesClient.senderAddress()}...`);
     await requestFunds(hierarchiesClient.senderAddress());
 
+    console.log(`⏳ Checking balance...`);
     const balance = await iotaClient.getBalance({ owner: hierarchiesClient.senderAddress() });
     if (balance.totalBalance === "0") {
         throw new Error("Balance is still 0");
     } else {
         console.log(
-            `Received gas from faucet: ${balance.totalBalance} for owner ${hierarchiesClient.senderAddress()}`,
+            `✅ Received gas from faucet: ${balance.totalBalance} for owner ${hierarchiesClient.senderAddress()}`,
         );
     }
 

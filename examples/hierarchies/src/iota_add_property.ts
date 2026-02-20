@@ -3,7 +3,7 @@
 
 import { Federation, FederationProperty, PropertyName, PropertyValue } from "@iota/hierarchies/node";
 import { strict as assert } from "assert";
-import { getFundedClient } from "./util";
+import { getFundedClient } from "./utils";
 
 /**
  * Demonstrates how to add Properties to a federation.
@@ -45,3 +45,9 @@ export async function addProperties(): Promise<void> {
 
     console.log("\n✅ Property was successfully added to the federation.");
 }
+
+// Run the example
+addProperties().catch(err => {
+    console.error("\n❌ Error:", err.message);
+    process.exit(1);
+});

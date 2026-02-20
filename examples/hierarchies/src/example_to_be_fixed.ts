@@ -5,7 +5,7 @@ import {
     PropertyValue,
 } from "@iota/hierarchies/node";
 import { strict as assert } from "assert";
-import { generateRandomAddress, getFundedClient } from "../../util";
+import { generateRandomAddress, getFundedClient } from "./utils";
 
 export async function validateProperties(): Promise<void> {
     const hierarchies = await getFundedClient();
@@ -35,8 +35,8 @@ export async function validateProperties(): Promise<void> {
     console.log(`\n✅ Accreditation to attest created for ${accreditationReceiver}`);
 
     const validationName = propertyName;
-    const validationValue = PropertyValue.newText("Invalid Value");
-    const properties = new Map < PropertyName, PropertyValue> ([[validationName, validationValue]]);
+    const validationValue = PropertyValue.newText("Hello");
+    const properties = new Map<PropertyName, PropertyValue>([[validationName, validationValue]]);
 
     const validationResult = await hierarchies.readOnly().validateProperties(
         federation.id,
@@ -55,4 +55,8 @@ export async function validateProperties(): Promise<void> {
     assert(validationResult2, "Validation single property failed");
     console.log("\n✅ Successfully validated property for the receiver:", accreditationReceiver);
 }
-validateProperties();
+
+validateProperties().catch(err => {
+    console.error("\n❌ Error:", err.message);
+    process.exit(1);
+});

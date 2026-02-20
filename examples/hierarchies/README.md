@@ -2,6 +2,8 @@
 
 TypeScript examples for the @iota/hierarchies package.
 
+**Note**: This tutorial is designed for **local network (localnet)** development. For testnet or mainnet usage, adjust the network configuration accordingly in the Prerequisites and Setup sections.
+
 ## Prerequisites
 
 This project has been tested with **IOTA CLI version v1.17.1-rc**.
@@ -93,9 +95,25 @@ NETWORK_URL=http://127.0.0.1:9000
 NETWORK_NAME_FAUCET=localnet
 ```
 
-### 3. Deploy Hierarchies Move Package (Required for Local Testing)
+### 3. Start Local Network (for Local Development)
 
-Before running the examples locally, you need to deploy the Hierarchies Move package to get the `IOTA_HIERARCHIES_PKG_ID`.
+If you're developing locally, start the IOTA local network with faucet support:
+
+```bash
+RUST_LOG="off,iota_node=info" iota start --force-regenesis --with-faucet
+```
+
+This command:
+- Starts a local IOTA network on `http://127.0.0.1:9000`
+- Enables the faucet on `http://127.0.0.1:9123/gas`
+- Uses `--force-regenesis` to start with a clean state
+- Filters logs to show only node info (reduces noise)
+
+**Note**: Keep this terminal running while you work with the examples.
+
+### 4. Deploy Hierarchies Move Package (Required for Local Testing)
+
+**For Local Network Only**: Before running the examples locally, you need to deploy the Hierarchies Move package to get the `IOTA_HIERARCHIES_PKG_ID`.
 
 Use the official deployment script from the hierarchies repository:
 
@@ -105,6 +123,8 @@ git clone https://github.com/iotaledger/hierarchies.git
 cd hierarchies/hierarchies-move
 
 # Run the publish script
+iota client faucet
+chmod +x ./scripts/publish_hierarchies.sh
 ./scripts/publish_hierarchies.sh
 ```
 
@@ -112,19 +132,22 @@ The script is available at: https://github.com/iotaledger/hierarchies/blob/main/
 
 After deployment, copy the package ID from the script output and paste it into your `.env` file as `IOTA_HIERARCHIES_PKG_ID`.
 
-**Note**: For testnet or mainnet, adjust the `NETWORK_URL` and `NETWORK_NAME_FAUCET` in your `.env` file accordingly:
+**For Testnet, Mainnet, and Devnet**: The Hierarchies package is already deployed. Use these pre-deployed package IDs:
 
-- **Testnet**: 
-  ```env
-  NETWORK_URL=https://api.testnet.iota.cafe
-  NETWORK_NAME_FAUCET=testnet
-  ```
+| Network | Package ID | Chain ID |
+|---------|------------|----------|
+| **Testnet** | `0xeac926704d207ec57acae24151c5517db9cead233d785ea3142b559ae065a114` | `2304aa97` |
+| **Mainnet** | `0x0f75165f01198edbc758df00d61440a46300efb639f3a5c33a7c797a8a66d371` | `6364aad5` |
+| **Devnet** | `0x373c0013c63394509b220a70307a54c323729369a574197c19c9c571c64e68be` | `e678123a` |
 
-- **Mainnet**: 
-  ```env
-  NETWORK_URL=https://api.mainnet.iota.cafe
-  NETWORK_NAME_FAUCET=mainnet
-  ```
+These IDs are maintained in the official repository: [hierarchies-move/Move.lock](https://github.com/iotaledger/hierarchies/blob/main/hierarchies-move/Move.lock)
+
+**Example `.env` for Testnet:**
+```env
+IOTA_HIERARCHIES_PKG_ID=0xeac926704d207ec57acae24151c5517db9cead233d785ea3142b559ae065a114
+NETWORK_URL=https://api.testnet.iota.cafe:443
+NETWORK_NAME_FAUCET=testnet
+```
 
 ## Available Examples
 
@@ -170,8 +193,8 @@ This means the `IOTA_HIERARCHIES_PKG_ID` in your `.env` file doesn't exist on th
 # Make sure you have the correct IOTA CLI version
 iota --version  # Should be v1.17.1-rc
 
-# In a separate terminal, start IOTA local network
-iota start --force-regenesis
+# In a separate terminal, start IOTA local network with faucet
+RUST_LOG="off,iota_node=info" iota start --force-regenesis --with-faucet
 
 # Clone and deploy hierarchies
 git clone https://github.com/iotaledger/hierarchies.git

@@ -13,7 +13,7 @@ const INVALID_VALUE = "Invalid Value";
 const PROPERTY_NAME = new PropertyName(["Example LTD"]);
 const ACCREDITATION_RECEIVER = generateRandomAddress();
 
-export async function validateProperties(): Promise<void> {
+export async function validatePropertiesTest(): Promise<void> {
     const hierarchies = await getFundedClient();
     const { output: federation }: { output: Federation } = await hierarchies.createNewFederation().buildAndExecute(
         hierarchies,
@@ -64,7 +64,9 @@ export async function validateProperties(): Promise<void> {
     // Test 2: Validate with an INCORRECT value (should FAIL)
     console.log(`\n🔍 Test 2: Validating with INCORRECT value "${INVALID_VALUE}"...`);
     const invalidValue = PropertyValue.newText(INVALID_VALUE);
-    const invalidProperties = new Map<PropertyName, PropertyValue>([[PROPERTY_NAME, invalidValue]]);
+    // const invalidProperties = new Map<PropertyName, PropertyValue>([[PROPERTY_NAME, invalidValue]]);
+
+    const invalidProperties = new Map<PropertyName, PropertyValue>([[new PropertyName(["Example LTD"]), PropertyValue.newText("Invalid Value")]]);
 
     // Error HERE: validateProperties returns true even for invalid value
     const invalidResult = await hierarchies.readOnly().validateProperties(
@@ -72,15 +74,20 @@ export async function validateProperties(): Promise<void> {
         ACCREDITATION_RECEIVER,
         invalidProperties,
     );
+    console.log("invalidResult: ", invalidResult);
     assert(!invalidResult, `Test 2 FAILED: Validation should FAIL for "${INVALID_VALUE}"`);
     console.log(`✅ Test 2 PASSED: validateProperties correctly rejected "${INVALID_VALUE}"`);
+
+
+    const propertyNameToValidate = new PropertyName(["Example LTD"]);
+    const invalidValueToValidate = PropertyValue.newText("Invalid Value");
 
     //Error HERE: validateProperty returns true even for invalid value
     const invalidResult2 = await hierarchies.readOnly().validateProperty(
         federation.id,
         ACCREDITATION_RECEIVER,
-        PROPERTY_NAME,
-        invalidValue
+        propertyNameToValidate,
+        invalidValueToValidate
     );
     assert(!invalidResult2, `Test 2 FAILED: Single property validation should FAIL for "${INVALID_VALUE}"`);
     console.log(`✅ Test 2 PASSED: validateProperty correctly rejected "${INVALID_VALUE}"`);
@@ -88,7 +95,7 @@ export async function validateProperties(): Promise<void> {
     console.log("\n🎉 All tests passed! Both validation methods work correctly.");
 }
 
-validateProperties().catch(err => {
+validatePropertiesTest().catch(err => {
     console.error("\n❌ Error:", err.message);
     process.exit(1);
 });

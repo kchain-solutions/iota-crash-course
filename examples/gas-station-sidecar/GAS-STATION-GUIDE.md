@@ -46,7 +46,71 @@ access-controller:
 
 Any transaction that does not match all three conditions is rejected. This means even if an attacker obtains access to the Gas Station endpoint, they cannot use it to call arbitrary contracts or drain gas from unauthorized accounts.
 
+Rules are evaluated **sequentially with first-match evaluation**. Once a matching rule applies, subsequent rules are skipped. If no rules match, the default policy applies (`deny-all` blocks, `allow-all` permits).
+
 **Important:** The `gas-station-config.production.yaml` file contains placeholder values (`SERVICE_ACCOUNT_PLACEHOLDER`, `PACKAGE_ADDRESS_PLACEHOLDER`). The `2-deploy.sh` script replaces them automatically with the real addresses from `.env`. If you skip the deploy script or need to update the config manually, replace the placeholders with the `SERVICE_ACCOUNT_ADDRESS` and `PACKAGE_ID` values from your `.env` file. The Gas Station will fail to start if these placeholders are not replaced with valid IOTA addresses.
+
+### Gas Usage Limiting (Rate Limiting per Sender)
+
+Beyond static rules, the access controller supports **gas usage limits** with time windows. The `gas-usage` field acts as a matcher (not an action) and requires Redis for cluster-wide counter synchronization.
+
+```yaml
+access-controller:
+  access-policy: deny-all
+  rules:
+    - sender-address: "*"
+      gas-usage:
+        value: "<1000000"
+        window: 1day
+        count-by: [ sender-address ]
+      action: allow
+```
+
+The `count-by: [ sender-address ]` ensures each sender's gas usage is tracked and limited separately. This prevents a single account from consuming the entire daily gas budget.
+
+### Hooks: External Filtering
+
+When standard predicates are not sufficient, hooks delegate the decision to an external HTTP service. This enables complex authorization logic (checking external databases, third-party integrations, custom business rules).
+
+```yaml
+rules:
+  - action:
+      url: http://my-auth-service.com/check
+      headers:
+        Authorization:
+          - Bearer TOKEN
+```
+
+The hook must respond with:
+
+```json
+{
+  "decision": "allow | deny | noDecision"
+}
+```
+
+A `noDecision` response causes the access controller to continue evaluating subsequent rules.
+
+### Rego Expressions (v0.2+)
+
+From version 0.2 onward, the access controller supports [Rego](https://www.openpolicyagent.org/docs/latest/policy-language/) (Open Policy Agent language) for complex filtering scenarios. Rego scripts are compiled at Gas Station startup. The source can be loaded from:
+
+- `file` (local filesystem)
+- `redis` (Redis storage)
+- `http` (remote URL)
+
+### Dynamic Rule Reloading
+
+Access controller rules can be reloaded at runtime without restarting the Gas Station:
+
+```bash
+curl -X GET http://localhost:9527/v1/reload_access_controller \
+  -H "Authorization: Bearer YOUR_TOKEN"
+```
+
+This is useful for updating rules in production without downtime (for example, adding a new service account).
+
+For the full access control reference, see [IOTA Gas Station Features](https://docs.iota.org/operator/gas-station/architecture/features).
 
 ## 4. Private Key Management
 
@@ -112,6 +176,25 @@ This is the recommended approach for production deployments where the Gas Statio
 
 ---
 
+## 6. Monitoring and Observability
+
+The Gas Station exposes a Prometheus metrics endpoint on port 9184 (configurable via `metrics-port`). It tracks reservation counts, execution success/failure rates, latency histograms, and coin pool usage. You can also enable detailed transaction logging with `TRANSACTIONS_LOGGING=true` for integration with Elasticsearch, Splunk, or Datadog.
+
+For the full list of metrics, recommended Grafana queries, and observability architecture, see the official documentation:
+
+- **Features (metrics, logging, analytics):** https://docs.iota.org/operator/gas-station/architecture/features
+
+---
+
+## Official Documentation
+
+For the full reference (REST API, Rust SDK, advanced access control, Rego policy language), see:
+
+- **Architecture and Features:** https://docs.iota.org/operator/gas-station/architecture/features
+- **GitHub Repository:** https://github.com/iotaledger/gas-station
+
+---
+
 ## Files in This Package
 
 | File | Description |
@@ -131,4 +214,4 @@ This is the recommended approach for production deployments where the Gas Statio
 
 ## Need Help?
 
-If you need assistance with a specific KMS integration, access control tuning, or monitoring setup, contact us at **valerio@kchain.solutions**.
+If you need assistance with a specific KMS integration, access control tuning, or monitoring setup, contact us

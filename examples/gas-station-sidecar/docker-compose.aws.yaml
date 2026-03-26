@@ -1,0 +1,30 @@
+# =============================================================================
+# IOTA Gas Station — AWS KMS Sidecar Override
+# =============================================================================
+# Replaces the local Ed25519 sidecar with the AWS KMS sidecar (Secp256k1).
+#
+# Usage:
+#   docker compose -f docker-compose.yaml -f docker-compose.aws.yaml up -d
+#
+# Prerequisites:
+#   - AWS KMS key (ECC_SECG_P256K1, signing usage)
+#   - TLS certificates in ./certs/ (tls.crt, tls.key)
+#   - AWS credentials in .env
+# =============================================================================
+
+services:
+  kms-sidecar:
+    build:
+      context: ./kms-sidecar-aws
+      dockerfile: Dockerfile
+    environment:
+      - PORT=8001
+      - AWS_KMS_KEY_ID=${AWS_KMS_KEY_ID}
+      - AWS_REGION=${AWS_REGION:-eu-central-1}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    volumes:
+      - ./certs/tls.crt:/app/tls.crt:ro
+      - ./certs/tls.key:/app/tls.key:ro
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "--no-check-certificate", "https://localhost:8001/"]

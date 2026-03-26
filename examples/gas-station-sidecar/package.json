@@ -1,0 +1,22 @@
+{
+  "name": "gas-station-hello-world",
+  "version": "1.0.0",
+  "description": "IOTA Gas Station sponsored transaction example with Hello World contract",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "call": "tsx src/sponsored-call.ts"
+  },
+  "dependencies": {
+    "@iota/bcs": "^1.2.0",
+    "@iota/iota-sdk": "^1.10.1",
+    "axios": "^1.7.9",
+    "bech32": "^2.0.0",
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.3.2"
+  }
+}

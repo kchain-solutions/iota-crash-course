@@ -1,0 +1,52 @@
+# =============================================================================
+# IOTA Gas Station Configuration
+# Single Service Account Mode
+# =============================================================================
+# Mount this file at /app/config.yaml inside the gas-station container.
+# Only SERVICE_ACCOUNT_PLACEHOLDER is authorized to submit transactions.
+# All other sender addresses are rejected (deny-all policy).
+# =============================================================================
+
+# Signer: the keypair that owns the gas coin pool and co-signs sponsored txs.
+# WARNING: "local" is for development/testing ONLY.
+# In production, replace with KMS sidecar configuration.
+signer-config:
+  local:
+    keypair: "<BASE64_ENCODED_ED25519_PRIVATE_KEY>"
+  # Production (uncomment and remove "local" above):
+  # sidecar:
+  #   sidecar-url: https://localhost:8001
+
+# RPC server
+rpc-host-ip: 0.0.0.0
+rpc-port: 9527
+metrics-port: 9184
+
+# Storage backend
+storage-config:
+  redis:
+    redis_url: "redis://redis:6379"
+
+# IOTA network
+fullnode-url: "https://api.testnet.iota.cafe"
+
+# Gas coin management
+coin-init-config:
+  target-init-balance: 100000000        # 0.1 IOTA per coin (in NANOs)
+  refresh-interval-sec: 86400           # Re-split coins every 24h
+
+# Safety limits
+daily-gas-usage-cap: 1500000000000      # 1500 IOTA max per day
+max-gas-budget: 2000000000              # 2 IOTA max per single transaction
+
+# Access control: deny all, whitelist only SERVICE_ACCOUNT_PLACEHOLDER
+# and restrict to a specific Move package (smart contract).
+access-controller:
+  access-policy: deny-all
+  rules:
+    - sender-address:
+        - "SERVICE_ACCOUNT_PLACEHOLDER"
+      move-call-package-address:
+        - "PACKAGE_ADDRESS_PLACEHOLDER"
+      transaction-gas-budget: "<=1000000000"
+      action: allow

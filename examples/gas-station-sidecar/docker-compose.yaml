@@ -1,0 +1,91 @@
+# =============================================================================
+# IOTA Gas Station — Docker Compose
+# =============================================================================
+# Three services:
+#   1. redis          — State backend for coin pool management
+#   2. kms-sidecar    — Signing service (local Ed25519 or AWS KMS)
+#   3. gas-station    — IOTA Gas Station (sponsored transactions)
+#
+# Usage (local sidecar, no AWS):
+#   cp .env.example .env        # set GAS_STATION_PRIVATE_KEY
+#   docker compose up -d
+#
+# Usage (AWS KMS sidecar):
+#   docker compose -f docker-compose.yaml -f docker-compose.aws.yaml up -d
+#
+# Development (inline local keypair, no sidecar at all):
+#   docker compose up redis gas-station -d
+#   Mount gas-station-config.yaml (with "local" signer) instead of production
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Redis — Gas Station state backend
+  # ---------------------------------------------------------------------------
+  redis:
+    image: redis:7-alpine
+    container_name: gas-station-redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  # ---------------------------------------------------------------------------
+  # KMS Sidecar — Local Ed25519 signing (no cloud dependency)
+  # ---------------------------------------------------------------------------
+  # Signs Gas Station transactions with a local Ed25519 keypair.
+  # The private key is loaded from the GAS_STATION_PRIVATE_KEY env var.
+  #
+  # For AWS KMS (Secp256k1), use docker-compose.aws.yaml override instead.
+  #
+  # Endpoints:
+  #   GET  /                    → health check
+  #   GET  /get-pubkey-address  → IOTA address derived from the signing key
+  #   POST /sign-transaction    → sign tx bytes, return serialized signature
+  # ---------------------------------------------------------------------------
+  kms-sidecar:
+    build:
+      context: ./sidecar
+      dockerfile: Dockerfile
+    container_name: gas-station-kms
+    restart: unless-stopped
+    ports:
+      - "8001:8001"
+    environment:
+      - PORT=8001
+      - GAS_STATION_PRIVATE_KEY=${GAS_STATION_PRIVATE_KEY}
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8001/"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # IOTA Gas Station — Sponsored transaction service
+  # ---------------------------------------------------------------------------
+  gas-station:
+    image: iotaledger/gas-station:latest
+    container_name: iota-gas-station
+    platform: linux/amd64
+    restart: unless-stopped
+    command: ["--config-path", "/app/config.yaml"]
+    depends_on:
+      redis:
+        condition: service_healthy
+      kms-sidecar:
+        condition: service_healthy
+    ports:
+      - "9527:9527"   # RPC endpoint
+      - "9184:9184"   # Prometheus metrics
+    environment:
+      - RUST_BACKTRACE=1
+      - GAS_STATION_AUTH=${GAS_STATION_AUTH}
+    volumes:
+      - ./gas-station-config.production.yaml:/app/config.yaml:ro
+
+volumes:
+  redis_data:

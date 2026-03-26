@@ -1,0 +1,60 @@
+# =============================================================================
+# IOTA Gas Station Configuration
+# Single Service Account Mode — PRODUCTION (KMS Sidecar)
+# =============================================================================
+# Mount this file at /app/config.yaml inside the gas-station container.
+# Only 0xd769bef409bb6cbef4cccc5f591054f4a88af8846ad88786826ee1c8152d6b31 is authorized to submit transactions.
+# All other sender addresses are rejected (deny-all policy).
+#
+# This config uses a KMS sidecar for signing instead of a local keypair.
+# The sidecar runs as a separate container and delegates signing to
+# AWS KMS (or another provider). The Gas Station calls the sidecar over
+# HTTPS to sign sponsored transactions.
+# =============================================================================
+
+# Signer: KMS sidecar handles signing via external key management.
+# The sidecar exposes two endpoints:
+#   GET  /get-pubkey-address   → returns the IOTA address for the KMS key
+#   POST /sign-transaction     → signs transaction bytes and returns serialized signature
+#
+# In Docker Compose the sidecar service is reachable at https://kms-sidecar:8001.
+# TLS is mandatory between Gas Station and sidecar.
+signer-config:
+  sidecar:
+    sidecar-url: http://kms-sidecar:8001
+
+# RPC server
+rpc-host-ip: 0.0.0.0
+rpc-port: 9527
+metrics-port: 9184
+
+# Storage backend
+storage-config:
+  redis:
+    redis_url: "redis://redis:6379"
+
+# IOTA network
+# Testnet:  https://api.testnet.iota.cafe
+# Mainnet:  https://api.mainnet.iota.cafe
+fullnode-url: "https://api.testnet.iota.cafe"
+
+# Gas coin management
+coin-init-config:
+  target-init-balance: 100000000        # 0.1 IOTA per coin (in NANOs)
+  refresh-interval-sec: 86400           # Re-split coins every 24h
+
+# Safety limits
+daily-gas-usage-cap: 1500000000000      # 1500 IOTA max per day
+max-gas-budget: 2000000000              # 2 IOTA max per single transaction
+
+# Access control: deny all, whitelist only 0xd769bef409bb6cbef4cccc5f591054f4a88af8846ad88786826ee1c8152d6b31
+# and restrict to a specific Move package (smart contract).
+access-controller:
+  access-policy: deny-all
+  rules:
+    - sender-address:                       # SERVICE_ACCOUNT_ADDRESS from .env
+        - "0xf86a15b264e222d84afe43cf2a3f80e4704840e2f6109ce6bc1f8d7a0317f6f2"
+      move-call-package-address:            # PACKAGE_ID from .env
+        - "0x1a1f214aa0dbd609370b6e2c23c2c8eab3a6a028ac43b156d06b3f480f15fb5e"
+      transaction-gas-budget: "<=1000000000"
+      action: allow

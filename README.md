@@ -1,37 +1,47 @@
-# 🚀 IOTA Blockchain Adoption Crash Course
+# IOTA Blockchain Adoption Crash Course
 
-A hands-on crash course for learning IOTA's Move Virtual Machine (MoveVM) and its unique approach to smart contracts and decentralized identity. This repository provides practical examples and step-by-step guides to help developers quickly understand and experiment with IOTA's blockchain technology.
+A hands-on crash course for learning IOTA's Move Virtual Machine (MoveVM) and its unique approach to smart contracts, decentralized identity, and enterprise trust infrastructure. This repository provides practical examples and step-by-step guides to help developers quickly understand and experiment with IOTA's blockchain technology.
 
-## 🎯 Purpose
+## Purpose
 
 This crash course is designed for developers who are:
 - New to IOTA's MoveVM and smart contract development
 - Looking to understand the differences between owned vs shared objects
-- Interested in building decentralized applications on IOTA
+- Interested in IOTA's Trust Framework for enterprise applications
 - Wanting hands-on experience with IOTA's development tools
 
-## 📚 Repository Structure
+## Repository Structure
 
 ```
 iota-crash-course/
-├── 📖 doc/                    # Theoretical concepts and guides
-│   ├── Beginner/              # Foundational learning materials
-│   │   ├── 01-key-concepts.md     # MoveVM fundamentals
-│   │   ├── 02-owned-vs-shared.md  # Object ownership patterns
-│   │   ├── 03-smart-contract.md   # Smart contract structure
-│   │   ├── 04-dummy-audit-trails.md # Example interaction guide
-│   │   └── 05-iota-explorer.md    # Blockchain exploration guide
-│   ├── Intermediate/          # Advanced topics
-│   │   └── 01-iota-identity.md    # Decentralized Identity (DIDs)
-│   └── Advanced/              # Expert-level implementations
-│       └── 01-domain-linkage-verification.md # Domain linkage verification
-├── 🔧 examples/               # Practical implementations
-│   ├── scripts/               # Reusable automation scripts
-│   └── dummy-audit-trails/    # Complete smart contract example
-└── 🛠️ Makefile                # Automated development commands
+├── doc/                              # Documentation organized in 5 modules
+│   ├── INDEX.md                      # Master index and learning paths
+│   ├── Module-1-Foundations/         # Core MoveVM concepts
+│   │   ├── 01-getting-started.md         # Environment setup
+│   │   ├── 02-key-concepts.md            # MoveVM fundamentals
+│   │   ├── 03-owned-vs-shared.md         # Object ownership patterns
+│   │   ├── 04-smart-contract.md          # Smart contract structure
+│   │   ├── 05-testing-and-debugging.md   # Testing and debugging
+│   │   ├── 06-dummy-audit-trails.md      # Example walkthrough
+│   │   └── 07-iota-explorer.md           # Blockchain exploration
+│   ├── Module-2-Trust-Framework/     # Identity and trust layer
+│   │   ├── 01-trust-framework-overview.md
+│   │   └── 02-iota-identity.md
+│   ├── Module-3-Infrastructure/      # Operations and deployment
+│   │   └── 01-iota-gas-station.md
+│   ├── Module-4-Integration/         # System integration patterns
+│   │   └── 01-domain-linkage-verification.md
+│   └── Module-5-Reference/           # Quick lookup material
+│       └── 01-enterprise-technical-faq.md
+├── examples/                         # Practical implementations
+│   ├── dummy-audit-trails/           # Move smart contract example
+│   ├── gas-station-sidecar/          # Gas Station + KMS deployment
+│   ├── hierarchies/                  # Hierarchies example (WIP)
+│   └── scripts/                      # Reusable automation scripts
+└── Makefile                          # Automated development commands
 ```
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites Installation
 
@@ -90,47 +100,42 @@ iota-crash-course/
     make audit-trail-add-trail
     ```
 
-## 📖 Learning Path
+## Learning Paths
 
-### 1. Understand Core Concepts
-Start by reading the documentation in the `doc/` directory:
+The documentation is organized in 5 modules with explicit prerequisites and three learning paths. See [doc/INDEX.md](doc/INDEX.md) for the complete curriculum map.
 
-- **[Key Concepts](doc/Beginner/01-key-concepts.md)**: Learn about MoveVM fundamentals and object-oriented design
-- **[Owned vs Shared Objects](doc/Beginner/02-owned-vs-shared.md)**: Understand IOTA's unique performance optimizations
-- **[Smart Contract Structure](doc/Beginner/03-smart-contract.md)**: Learn how Move contracts are organized and structured
-- **[Audit Trail Example](doc/Beginner/04-dummy-audit-trails.md)**: Step-by-step guide to interacting with the example
-- **[IOTA Explorer Guide](doc/Beginner/05-iota-explorer.md)**: Master blockchain exploration and debugging
-- **[IOTA Identity Guide](doc/Intermediate/01-iota-identity.md)**: Understand how to use IOTA Identity SDK to manage Decentralized Identities
-- **[Domain Linkage Verification](doc/Advanced/01-domain-linkage-verification.md)**: Advanced identity verification with bidirectional domain-DID linking
+### Path A: Smart Contract Developer (8-10 hours)
+Write, test, deploy, and upgrade Move smart contracts on IOTA.
 
-### 2. Hands-on Examples
-Explore the practical implementation in `examples/dummy-audit-trails/`:
+### Path B: Enterprise Architect (6-8 hours)
+Understand IOTA's enterprise capabilities and design DPP/trust systems.
 
-- **Simple audit trail system** demonstrating both shared and owned objects
-- **Automatic NFT rewards** for participating in the audit process
-- **Real smart contract** that you can deploy and interact with
+### Path C: Full Stack dApp Developer (10-12 hours)
+Build a complete dApp with frontend, smart contract, identity, and sponsored transactions.
 
-### 3. Key Learning Outcomes
-By completing this crash course, you'll understand:
+### Module Overview
 
-- **Object Model**: How IOTA's object-centric approach differs from account-based systems
-- **Performance**: Why owned objects enable parallel execution and low latency
-- **Smart Contracts**: How to write, deploy, and interact with Move contracts
-- **Development Tools**: Using IOTA CLI, explorer, and development workflows
+| Module | Focus | Documents |
+|--------|-------|-----------|
+| [Module 1: Foundations](doc/Module-1-Foundations/) | Core MoveVM concepts, first smart contract | 7 docs |
+| [Module 2: Trust Framework](doc/Module-2-Trust-Framework/) | Identity, credentials, hierarchies | 2 docs |
+| [Module 3: Infrastructure](doc/Module-3-Infrastructure/) | Gas Station, deployment | 1 doc |
+| [Module 4: Integration](doc/Module-4-Integration/) | Domain linkage, DPP, frontend | 1 doc |
+| [Module 5: Reference](doc/Module-5-Reference/) | FAQ, cheat sheet | 1 doc |
 
-## 🛠️ Available Commands
+## Available Commands
 
 ### Prerequisites and Setup
 ```bash
 make install-rust           # Install/update Rust and Cargo
-make install-iota-cli       # Install IOTA CLI v1.6.1
+make install-iota-cli       # Install IOTA CLI
 make check-dependencies     # Verify all tools are installed
 ```
 
 ### Account Management
 ```bash
 make create-account [ALIAS=test]  # Create new account + request faucet
-make list-accounts               # Show all accounts and active one  
+make list-accounts               # Show all accounts and active one
 make faucet                      # Request tokens for current account
 make balance                     # Check current account balance
 make switch-account ALIAS=name   # Switch to different account
@@ -151,7 +156,7 @@ make help                   # Show all available commands
 make audit-trail-help      # Show detailed audit trail commands
 ```
 
-## 🏗️ Smart Contract Architecture
+## Smart Contract Architecture
 
 The audit trail example demonstrates key IOTA concepts:
 
@@ -161,7 +166,7 @@ The audit trail example demonstrates key IOTA concepts:
 - **Higher latency** due to consensus requirements
 - **Perfect for collaborative resources**
 
-### Owned Objects  
+### Owned Objects
 - **ProductEntry**: Created with `transfer::transfer()`
 - **Owned by specific Product** address
 - **Lower latency** through parallel execution
@@ -172,15 +177,16 @@ The audit trail example demonstrates key IOTA concepts:
 - **Demonstrates asset creation** and transfer
 - **Shows integration** between different contract modules
 
-## 🌐 IOTA Explorer Integration
+## IOTA Explorer Integration
 
 After deploying and interacting with contracts, use the IOTA Explorer to verify on-chain activity:
 
-- [explorer.iota.org](https://explorer.iota.org)
+- **Testnet**: [explorer.rebased.iota.org](https://explorer.rebased.iota.org)
+- **Mainnet**: [explorer.iota.org](https://explorer.iota.org)
 
 Search for transaction IDs or object IDs to see detailed information about your contracts and transactions.
 
-## 📝 Configuration
+## Configuration
 
 ### Environment Variables
 Each example uses its own `.env` file for configuration:
@@ -197,12 +203,13 @@ The typical development cycle:
 
 1. **Setup**: Install tools and create account
 2. **Build**: Compile Move smart contract
-3. **Deploy**: Publish contract to network
-4. **Configure**: Update .env with deployed package ID
-5. **Interact**: Create objects and call contract functions
-6. **Verify**: Use explorer to confirm on-chain state
+3. **Test**: Run unit tests (`iota move test`)
+4. **Deploy**: Publish contract to network
+5. **Configure**: Update .env with deployed package ID
+6. **Interact**: Create objects and call contract functions
+7. **Verify**: Use explorer to confirm on-chain state
 
-## 🤝 Contributing
+## Contributing
 
 This crash course is designed to be educational and practical. If you find issues or have suggestions for improvements, please feel free to contribute by:
 
@@ -210,20 +217,20 @@ This crash course is designed to be educational and practical. If you find issue
 - Suggesting additional examples or use cases
 - Improving the automation scripts or Makefile commands
 
-## 📚 Additional Resources
+## Additional Resources
 
 - **[IOTA Developer Documentation](https://docs.iota.org/)**
 - **[Move Language Reference](https://move-language.github.io/move/)**
-- **[IOTA Identity Framework](https://identity.docs.iota.org/)**
+- **[IOTA Identity Framework](https://docs.iota.org/developer/iota-identity/)**
 - **[IOTA Explorer](https://explorer.iota.org)**
+- **[DPP Demo Showcase](https://dpp.demo.iota.org/)**
 
-## 🏁 Next Steps
+## Next Steps
 
 After completing this crash course:
 
 1. **Experiment** with modifying the audit trail contract
-2. **Create your own** Move smart contract from scratch  
-3. **Explore** IOTA's identity and DID capabilities
+2. **Test** your contracts with `iota move test` and coverage
+3. **Explore** IOTA's Trust Framework components
 4. **Build** a decentralized application using IOTA's full stack
-
-Happy coding with IOTA! 🚀
+5. **Deploy** a Gas Station for gasless user experience

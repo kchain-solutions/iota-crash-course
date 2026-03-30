@@ -1,5 +1,11 @@
 # Owned vs. Shared Objects in Move
 
+> **Prerequisiti:** [02 - Key Concepts](02-key-concepts.md)
+> **Tempo stimato:** 20 minuti
+> **Prossimo:** [04 - Smart Contract](04-smart-contract.md)
+
+---
+
 A cornerstone of Move on IOTA is the distinction between owned objects and shared objects. This fundamental design choice dramatically impacts **performance**, **consensus requirements**, and **scalability**. Understanding when to use each type is crucial for building efficient IOTA applications.
 
 ## 🚀 Performance Impact Overview

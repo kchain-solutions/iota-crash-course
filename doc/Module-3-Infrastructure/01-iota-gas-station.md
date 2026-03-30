@@ -1,5 +1,11 @@
 # IOTA Gas Station: Production Deployment Guide
 
+> **Prerequisiti:** [Module 1 - Foundations](../Module-1-Foundations/04-smart-contract.md) (concetti base smart contract)
+> **Tempo stimato:** 45 minuti
+> **Hands-On:** `examples/gas-station-sidecar/`
+
+---
+
 The IOTA Gas Station is a critical infrastructure component that enables gasless transactions for users by sponsoring their transaction fees. This guide covers production deployment, configuration, monitoring, and operational best practices for running a Gas Station in enterprise environments.
 
 ## What is IOTA Gas Station?
@@ -231,9 +237,9 @@ Implement a secure multi-tier wallet structure:
 
 ```
 Treasury Wallet (Multisig/MPC/Cold)
-    “ (Controlled transfers)
+    ï¿½ (Controlled transfers)
 Operational Wallet (Warm storage)
-    “ (Automated top-ups)
+    ï¿½ (Automated top-ups)
 Gas Station Wallet (Hot wallet)
 ```
 

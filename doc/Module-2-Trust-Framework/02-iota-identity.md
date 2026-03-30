@@ -1,5 +1,11 @@
 # IOTA Identity: Decentralized Identifiers (DIDs) on IOTA
 
+> **Prerequisiti:** [01 - Trust Framework Overview](01-trust-framework-overview.md)
+> **Tempo stimato:** 30 minuti
+> **Prossimo:** [03 - Verifiable Credentials](03-verifiable-credentials.md)
+
+---
+
 Decentralized Identifiers (DIDs) are a key component of self-sovereign identity, and IOTA provides a robust framework (the IOTA Identity library) for creating and managing DIDs on its ledger. A DID is essentially a globally unique identifier (like `did:iota:123...`) that maps to a DID Document — a document containing public keys, authentication methods, and other metadata about an identity.
 
 In IOTA's implementation, DIDs are stored on the ledger as special Identity objects, and the IOTA Identity library provides convenient APIs to perform all operations (Create, Read, Update, Deactivate). These operations under the hood translate to on-chain transactions that modify the Identity objects.

@@ -1,5 +1,10 @@
 # Domain Linkage Verification
 
+> **Prerequisiti:** [Module 2 - IOTA Identity](../Module-2-Trust-Framework/02-iota-identity.md)
+> **Tempo stimato:** 30 minuti
+
+---
+
 Domain linkage is a crucial feature in IOTA Identity that establishes a verifiable connection between a DID (Decentralized Identifier) and a web domain. This bidirectional linking enables trust and verification in decentralized applications by proving that a DID controller has control over a specific domain and vice versa.
 
 ## What is Domain Linkage?

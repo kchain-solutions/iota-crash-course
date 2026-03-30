@@ -6,3 +6,4 @@ ext_docs/
 .env
 
 CLAUDE.md
+.claude/

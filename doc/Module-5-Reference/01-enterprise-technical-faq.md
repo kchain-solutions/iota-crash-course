@@ -1,5 +1,10 @@
 # IOTA Enterprise Technical FAQ
 
+> **Prerequisiti:** Nessuno (documento di riferimento consultabile in qualsiasi momento)
+> **Tempo stimato:** 20 minuti
+
+---
+
 This document provides technical answers to common questions about IOTA's capabilities for enterprise and ESG use cases. All information is based on the current IOTA protocol implementation and technical specifications.
 
 ## 1. Core Protocol & Performance

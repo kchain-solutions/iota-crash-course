@@ -1,5 +1,11 @@
 # Smart Contract Structure in IOTA Move
 
+> **Prerequisiti:** [03 - Owned vs Shared](03-owned-vs-shared.md)
+> **Tempo stimato:** 45 minuti
+> **Prossimo:** [05 - Testing e Debugging](05-testing-and-debugging.md)
+
+---
+
 This guide explains the fundamental concepts and structure needed to write smart contracts in IOTA's Move Virtual Machine, from project setup to advanced patterns.
 
 ## 🗂️ Project Structure

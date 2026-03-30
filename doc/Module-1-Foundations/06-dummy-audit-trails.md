@@ -1,5 +1,12 @@
 # Dummy Audit Trails Example: Interaction Guide
 
+> **Prerequisiti:** [05 - Testing e Debugging](05-testing-and-debugging.md)
+> **Tempo stimato:** 60 minuti
+> **Hands-On:** `examples/dummy-audit-trails/`
+> **Prossimo:** [07 - IOTA Explorer](07-iota-explorer.md)
+
+---
+
 This guide walks you through the dummy audit trails example, explaining how to interact with the smart contract and what happens behind the scenes.
 
 ## Example Overview

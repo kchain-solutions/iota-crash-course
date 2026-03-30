@@ -1,5 +1,11 @@
 # Using the IOTA Explorer with the Audit Trail Example
 
+> **Prerequisiti:** [06 - Dummy Audit Trails](06-dummy-audit-trails.md)
+> **Tempo stimato:** 30 minuti
+> **Prossimo:** [Module 2 - Trust Framework Overview](../Module-2-Trust-Framework/01-trust-framework-overview.md)
+
+---
+
 The IOTA Explorer is your window into the blockchain, providing real-time visibility into transactions, objects, and network activity. This guide shows you how to use the explorer effectively with our audit trail example.
 
 ## Explorer URLs
